@@ -1,19 +1,21 @@
-# autoskills
+# autoskills-pragma
+
+> Fork of [autoskills](https://github.com/midudev/autoskills) by [@midudev](https://github.com/midudev), maintained by [Pragma Engineering](https://github.com/bryanvillamilpragma/autoSkills-Pragma). License: [CC-BY-NC-4.0](https://creativecommons.org/licenses/by-nc/4.0/).
 
 Auto-detect and install the best AI agent skills for your project. One command, zero config.
 
 ```bash
-npx autoskills
+npx autoskills-pragma
 ```
 
-`autoskills` scans your project, detects the technologies you use, and installs curated [AI agent skills](https://skills.sh) that make Cursor, Claude Code, and other AI coding assistants actually understand your stack.
+`autoskills-pragma` scans your project, detects the technologies you use, and installs curated [AI agent skills](https://skills.sh) that make Cursor, Claude Code, and other AI coding assistants actually understand your stack.
 
 ## Quick Start
 
 Run it in your project root:
 
 ```bash
-npx autoskills
+npx autoskills-pragma
 ```
 
 That's it. It will:
@@ -27,18 +29,18 @@ That's it. It will:
 ### Skip the prompt
 
 ```bash
-npx autoskills -y
+npx autoskills-pragma -y
 ```
 
 ### Preview without installing
 
 ```bash
-npx autoskills --dry-run
+npx autoskills-pragma --dry-run
 ```
 
 ### Claude Code summary
 
-If `claude-code` is auto-detected or passed with `-a`, `autoskills` writes a `CLAUDE.md` file in your project root summarizing the markdown files installed under `.claude/skills`.
+If `claude-code` is auto-detected or passed with `-a`, `autoskills-pragma` writes a `CLAUDE.md` file in your project root summarizing the markdown files installed under `.claude/skills`.
 
 ## Options
 
@@ -51,7 +53,7 @@ If `claude-code` is auto-detected or passed with `-a`, `autoskills` writes a `CL
 
 ## Supported Technologies
 
-`autoskills` detects **50+ technologies** from your `package.json`, lockfiles, Gradle files, and config files:
+`autoskills-pragma` detects **50+ technologies** from your `package.json`, lockfiles, Gradle files, and config files:
 
 ### Frameworks & Libraries
 
@@ -154,11 +156,11 @@ If `claude-code` is auto-detected or passed with `-a`, `autoskills` writes a `CL
 
 ### Web Frontend Detection
 
-Even without a framework, `autoskills` scans your file tree for web frontend signals (`.html`, `.css`, `.scss`, `.vue`, `.svelte`, `.jsx`, `.tsx`, `.twig`, `.blade.php`, etc.) and installs skills for frontend design, accessibility, and SEO.
+Even without a framework, `autoskills-pragma` scans your file tree for web frontend signals (`.html`, `.css`, `.scss`, `.vue`, `.svelte`, `.jsx`, `.tsx`, `.twig`, `.blade.php`, etc.) and installs skills for frontend design, accessibility, and SEO.
 
 ## Combo Detection
 
-When multiple technologies are used together, `autoskills` detects **technology combos** and adds specialized skills for the combination:
+When multiple technologies are used together, `autoskills-pragma` detects **technology combos** and adds specialized skills for the combination:
 
 - **Next.js + Supabase** — Supabase Postgres best practices for Next.js
 - **Next.js + Vercel AI SDK** — AI SDK patterns with Next.js
@@ -174,14 +176,14 @@ When multiple technologies are used together, `autoskills` detects **technology 
 
 ## How It Works
 
-`autoskills` uses [skills.sh](https://skills.sh) under the hood — the open skill registry for AI coding agents. Skills are markdown files that teach AI assistants how to work with specific technologies, following best practices and patterns from the official maintainers.
+`autoskills-pragma` uses [skills.sh](https://skills.sh) under the hood — the open skill registry for AI coding agents. Skills are markdown files that teach AI assistants how to work with specific technologies, following best practices and patterns from the official maintainers.
 
 The detection runs entirely locally with zero network requests until installation begins.
 
 ## Requirements
 
-- Node.js >= 22.0.0
+- Node.js >= 22.6.0
 
 ## License
 
-CC-BY-NC-4.0 — Created by [@midudev](https://github.com/midudev)
+CC-BY-NC-4.0 — Original work by [@midudev](https://github.com/midudev). This is a fork maintained by [Pragma Engineering](https://github.com/bryanvillamilpragma/autoSkills-Pragma). Changes have been made from the original. See the [original repository](https://github.com/midudev/autoskills) for the upstream source.
