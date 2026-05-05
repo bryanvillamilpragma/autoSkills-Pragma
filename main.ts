@@ -58,6 +58,8 @@ interface CliArgs {
   help: boolean;
   clearCache: boolean;
   agents: string[];
+  workflow: string | null;
+  listAgents: boolean;
 }
 
 function parseArgs(): CliArgs {
@@ -70,6 +72,10 @@ function parseArgs(): CliArgs {
       agents.push(args[i]);
     }
   }
+  const positional = args.filter((a) => !a.startsWith("-"));
+  const workflow = positional.length > 0 ? positional[0] : null;
+  const listAgents = args.includes("--agents");
+
   return {
     autoYes: args.includes("-y") || args.includes("--yes"),
     dryRun: args.includes("--dry-run"),
@@ -77,6 +83,8 @@ function parseArgs(): CliArgs {
     help: args.includes("--help") || args.includes("-h"),
     clearCache: args.includes("--clear-cache"),
     agents,
+    workflow,
+    listAgents,
   };
 }
 
@@ -498,10 +506,48 @@ async function selectSkills(skills: SkillEntry[], autoYes: boolean): Promise<Ski
   return selected;
 }
 
+// ── Workflows ────────────────────────────────────────────────
+
+async function showAvailableAgents(): Promise<void> {
+  const projectDir = resolve(".");
+  const { detected } = detectTechnologies(projectDir);
+  const detectedIds = detected.map((t: Technology) => t.id);
+
+  const allWorkflows = [
+    {
+      name: "create-component",
+      description: "Crea un componente siguiendo las convenciones del stack",
+      requires: [["angular", "clean-architecture-uml"], ["angular"], ["react"]],
+    },
+  ];
+
+  const available = allWorkflows.filter((wf) =>
+    wf.requires.some((req) => req.every((r) => detectedIds.includes(r))),
+  );
+
+  log("");
+  log(cyan("  ◆ Agentes disponibles para este proyecto"));
+  log(dim(`  Stack: ${detectedIds.join(", ") || "no detectado"}`));
+  log("");
+
+  if (available.length === 0) {
+    log(yellow("  No hay agentes disponibles para el stack detectado."));
+  } else {
+    const maxLen = Math.max(...available.map((a) => a.name.length));
+    for (const wf of available) {
+      const pad = " ".repeat(maxLen - wf.name.length + 2);
+      log(green("  ›") + " " + bold(wf.name) + pad + dim(wf.description));
+    }
+    log("");
+    log(dim("  Usar: npx autoskills-pragma <nombre-agente>"));
+  }
+  log("");
+}
+
 // ── Main ─────────────────────────────────────────────────────
 
 async function main(): Promise<void> {
-  const { autoYes, dryRun, verbose, help, clearCache, agents } = parseArgs();
+  const { autoYes, dryRun, verbose, help, clearCache, agents, workflow, listAgents } = parseArgs();
 
   if (help) {
     showHelp();
@@ -516,6 +562,32 @@ async function main(): Promise<void> {
         : dim(`   No autoskills cache found: ${cacheDir}`),
     );
     log();
+    process.exit(0);
+  }
+
+  // ── Interceptar workflow ─────────────────────────────────
+  if (workflow) {
+    const { runWorkflow } = await import("./workflows/runner.js");
+    const { createComponentWorkflow } = await import("./workflows/create-component/index.js");
+
+    const workflowMap: Record<string, import("./workflows/runner.js").WorkflowDefinition> = {
+      "create-component": createComponentWorkflow,
+    };
+
+    const wf = workflowMap[workflow];
+    if (!wf) {
+      log(red(`  ✘ Workflow desconocido: "${workflow}"`));
+      log(dim(`  Workflows disponibles: ${Object.keys(workflowMap).join(", ")}`));
+      process.exit(1);
+    }
+
+    await runWorkflow(wf);
+    process.exit(0);
+  }
+
+  // ── Listar agentes disponibles ───────────────────────────
+  if (listAgents) {
+    await showAvailableAgents();
     process.exit(0);
   }
 
