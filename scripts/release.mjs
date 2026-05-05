@@ -21,7 +21,7 @@ const VALID_BUMPS = ["patch", "minor", "major"];
  * @returns {string}
  */
 function normalizeRepoUrl(rawUrl) {
-  const fallback = "https://github.com/midudev/autoskills";
+  const fallback = "https://github.com/bryanvillamilpragma/autoSkills-Pragma";
   if (!rawUrl || typeof rawUrl !== "string") return fallback;
 
   let url = rawUrl.trim();

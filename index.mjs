@@ -8,9 +8,9 @@ const [major, minor] = process.versions.node.split(".").map(Number);
 
 if (major < 22 || (major === 22 && minor < 6)) {
   console.error(
-    `\n  ⚠ autoskills requires Node.js >= 22.6.0.` +
-      `\n  Current version: ${process.version}` +
-      `\n  Please upgrade → https://nodejs.org\n`,
+    `\n  ⚠ autoskills-pragma requires Node.js >= 22.6.0.` +
+    `\n  Current version: ${process.version}` +
+    `\n  Please upgrade → https://nodejs.org\n`,
   );
   process.exit(1);
 }

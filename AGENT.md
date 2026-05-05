@@ -2,7 +2,7 @@
 
 ## Qué es este proyecto
 
-**autoskills-pragma** un CLI que auto-detecta las tecnologías de un proyecto y les instala "skills" curados (archivos Markdown) que enseñan a los agentes de IA (Cursor, Claude Code, etc.) a trabajar correctamente con ese stack.
+**autoskills-pragma** es un CLI (`npx autoskills-pragma`) que auto-detecta las tecnologías de un proyecto y les instala "skills" curados (archivos Markdown) que enseñan a los agentes de IA (Cursor, Claude Code, etc.) a trabajar correctamente con ese stack. Escanea `package.json`, archivos de config, lockfiles, Gradle y .NET, presenta un selector interactivo e instala los skills verificados en `.agents/skills/` con symlinks a la carpeta de cada agente.
 
 ### Qué hace hoy
 
@@ -24,9 +24,29 @@ Esto convertiría autoskills en una plataforma completa de contexto para agentes
 
 ---
 
+## Comandos
+
+```bash
+pnpm build              # Compila TypeScript → dist/
+pnpm test               # Ejecuta todos los tests (node:test runner)
+pnpm validate:registry  # Valida skills-map ↔ skills-registry consistency
+pnpm sync:skills        # Descarga y audita skills desde GitHub (requiere OPENAI_API_KEY)
+pnpm release            # Bump de versión, changelog, publish a npm
+```
+
+Ejecutar un test específico:
+
+```bash
+node --test 'tests/detect.test.ts'
+```
+
+Requiere Node.js >= 22.6.0.
+
+---
+
 ## Estructura del proyecto
 
-```
+```text
 autoskills-pragma/
 ├── index.mjs              # Entry point — verifica Node >= 22.6, carga main.ts o dist/
 ├── main.ts                # CLI principal: parseo de args, detección, selección, instalación
@@ -68,9 +88,24 @@ autoskills-pragma/
 └── CHANGELOG.md           # Historial de releases
 ```
 
+### Tabla de arquitectura
+
+Todo el código TypeScript vive en la raíz del proyecto (sin directorio `src/`):
+
+| Archivo         | Rol                                                                                                                   |
+| --------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `index.mjs`     | Entry del CLI: verifica versión de Node, carga `dist/main.js` o fallback a `main.ts` con `--experimental-strip-types` |
+| `main.ts`       | Orquestación del CLI: parseo de args, flujo de detección, selección interactiva, instalación                          |
+| `lib.ts`        | Motor de detección: `detectTechnologies()`, `collectSkills()`, resolución de workspaces, detección de combos          |
+| `skills-map.ts` | Mapa declarativo de 50+ tecnologías → reglas de detección → skills                                                    |
+| `installer.ts`  | Carga del registry, verificación de integridad SHA-256, instalación de skills, creación de symlinks                   |
+| `ui.ts`         | Prompt multi-select interactivo, banner animado, spinner                                                              |
+| `colors.ts`     | Helpers `log()` y `write()` — usar en lugar de `console.log`                                                          |
+| `claude.ts`     | Generación y limpieza de `CLAUDE.md`                                                                                  |
+
 ### Flujo de datos
 
-```
+```text
 skills-map.ts (declarativo)
        ↓
 lib.ts detectTechnologies() → escanea proyecto → retorna tecnologías + combos
@@ -93,57 +128,53 @@ Symlinks a carpetas de cada agente (.cursor/skills/, .claude/skills/, etc.)
 
 ## Supply Chain Security
 
-### Rules for AI assistants and contributors
+### Reglas para agentes de IA y contribuidores
 
-- **Never use `^` or `~`** in dependency version specifiers. Always pin exact versions.
-- **Always commit the lockfile** (`pnpm-lock.yaml`). Never delete it or add it to `.gitignore`.
-- **Install scripts are disabled**. If a new dependency requires a build step, it must be explicitly approved.
-- **New package versions must be at least 1 day old** before they can be installed (release age gating is enabled).
-- When adding a dependency, verify it on [npmjs.com](https://www.npmjs.com) before installing.
-- Prefer well-maintained packages with verified publishers and provenance.
-- Run `pnpm install` with the lockfile present — never bypass it.
-- Do not add git-based or tarball URL dependencies unless explicitly approved.
-- **Do not run `npm update`**, `npx npm-check-updates`, or any blind upgrade command. Review each update individually.
-- **Use deterministic installs**: prefer `pnpm install --frozen-lockfile` over `pnpm install` in CI and scripts.
+- **Nunca usar `^` o `~`** en versiones de dependencias — siempre pin exacto.
+- **Siempre commitear el lockfile** (`pnpm-lock.yaml`). Nunca borrarlo ni agregarlo a `.gitignore`.
+- **Los install scripts están deshabilitados**. Si una dependencia requiere un build step, debe aprobarse explícitamente.
+- **Las versiones de paquetes nuevos deben tener al menos 1 día de antigüedad** antes de instalarlas.
+- Al agregar una dependencia, verificarla en [npmjs.com](https://www.npmjs.com) antes de instalar.
+- Preferir paquetes bien mantenidos con publishers verificados y provenance.
+- Ejecutar `pnpm install` con el lockfile presente — nunca saltearlo.
+- No agregar dependencias git-based o tarball URL sin aprobación explícita.
+- **No ejecutar `npm update`**, `npx npm-check-updates`, ni ningún comando de upgrade masivo. Revisar cada actualización individualmente.
+- **Usar installs deterministas**: preferir `pnpm install --frozen-lockfile` en CI y scripts.
 
 ---
 
 ## Testing
 
-- Tests use Node.js built-in test runner (`node:test`) and `node:assert/strict`.
-- Run tests: `node --test 'tests/*.test.ts'`
-- **Always destructure** the specific assert functions you need instead of importing the default `assert` object. Use `ok(...)` instead of `assert.ok(...)`, `strictEqual(...)` instead of `assert.strictEqual(...)`, etc.
+- Los tests usan el runner built-in de Node.js (`node:test`) y `node:assert/strict`.
+- **Siempre destructurar** las funciones de assert específicas en lugar de importar el objeto `assert` por defecto.
 
-```js
-// ✅ Correct
+```ts
+// ✅ Correcto
 import { ok, strictEqual, deepStrictEqual } from "node:assert/strict";
-
 ok(value);
 strictEqual(a, b);
 
-// ❌ Wrong
+// ❌ Incorrecto
 import assert from "node:assert/strict";
-
 assert.ok(value);
 assert.strictEqual(a, b);
 ```
 
-- Use the shared helpers from `tests/helpers.ts` (`useTmpDir`, `writePackageJson`, `writeJson`, `writeFile`, `addWorkspace`) to avoid duplicating filesystem setup logic in tests.
+- Usar los helpers compartidos de `tests/helpers.ts` (`useTmpDir`, `writePackageJson`, `writeJson`, `writeFile`, `addWorkspace`) para evitar duplicar lógica de setup de filesystem en los tests.
 
 ---
 
 ## Output helpers
 
-- **Never use `console.log` or `process.stdout.write` directly** in the CLI. Use the `log` and `write` helpers exported from `./colors.js` instead.
+- **Nunca usar `console.log` o `process.stdout.write` directamente** en el CLI. Usar los helpers `log` y `write` exportados desde `./colors.js`.
 
 ```ts
-// ✅ Correct
+// ✅ Correcto
 import { log, write } from "./colors.js";
-
 log("hello");
 write("raw output\n");
 
-// ❌ Wrong
+// ❌ Incorrecto
 console.log("hello");
 process.stdout.write("raw output\n");
 ```
@@ -152,10 +183,10 @@ process.stdout.write("raw output\n");
 
 ## Scripts útiles
 
-| Script | Descripción |
-|--------|-------------|
-| `pnpm build` | Compila TypeScript a `dist/` |
-| `pnpm test` | Ejecuta todos los tests |
-| `pnpm validate:registry` | Valida integridad del registry vs skills-map |
-| `pnpm sync:skills` | Descarga y audita skills desde GitHub (requiere `OPENAI_API_KEY`) |
-| `pnpm release` | Release completa: bump, changelog, publish, GitHub release |
+| Script                   | Descripción                                                       |
+| ------------------------ | ----------------------------------------------------------------- |
+| `pnpm build`             | Compila TypeScript a `dist/`                                      |
+| `pnpm test`              | Ejecuta todos los tests                                           |
+| `pnpm validate:registry` | Valida integridad del registry vs skills-map                      |
+| `pnpm sync:skills`       | Descarga y audita skills desde GitHub (requiere `OPENAI_API_KEY`) |
+| `pnpm release`           | Release completa: bump, changelog, publish, GitHub release        |

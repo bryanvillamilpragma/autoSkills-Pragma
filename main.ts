@@ -37,12 +37,12 @@ const VERSION: string = (() => {
     if (!existsSync(p)) continue;
     try {
       const pkg = JSON.parse(readFileSync(p, "utf-8"));
-      if (pkg.name === "autoskills") return pkg.version;
+      if (pkg.name === "autoskills-pragma") return pkg.version;
     } catch {}
   }
   return "0.0.0";
 })();
-const ISSUES_URL = "https://github.com/midudev/autoskills/issues";
+const ISSUES_URL = "https://github.com/bryanvillamilpragma/autoSkills-Pragma/issues";
 
 process.on("SIGINT", () => {
   write(SHOW_CURSOR + "\n");
@@ -421,7 +421,7 @@ function printSummary({ installed, failed, errors, elapsed, verbose }: SummaryOp
   }
 
   log();
-  log(pink("   Enjoyed autoskills? Consider sponsoring → https://github.com/sponsors/midudev"));
+  log(pink("   autoskills-pragma is a Pragma fork of autoskills by @midudev → https://github.com/sponsors/midudev"));
   log();
 }
 

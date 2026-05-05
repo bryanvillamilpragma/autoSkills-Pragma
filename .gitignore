@@ -1,3 +1,23 @@
+# Dependencies
+node_modules/
+
+# Build
 dist/
+
+# Alternate lock files (project uses pnpm-lock.yaml)
+bun.lock
+yarn.lock
+package-lock.json
+
+# Generated
 scripts/sync-skills.report.json
+*.log
+
+# Secrets
 .env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
