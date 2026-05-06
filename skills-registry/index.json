@@ -13304,6 +13304,48 @@
         "summary": "review skipped (--no-review)",
         "checkedAt": "2026-05-06T03:35:39.903Z"
       }
+    },
+    "create-component": {
+      "source": "pragma/autoskills",
+      "skillPath": "pragma/autoskills/create-component",
+      "type": "workflow",
+      "commitSha": "local",
+      "files": [
+        "SKILL.md"
+      ],
+      "sha256": {
+        "SKILL.md": "db8018d101371702821741988a32fec1978714d1f445065cc3f88ce1348e4d09"
+      },
+      "bundleHash": "c663c4b786d8497124f697cfbc478e21abaa78c55ec667b0ecf274ff11f76c32",
+      "review": {
+        "status": "approved",
+        "flags": [],
+        "summary": "Workflow para crear componentes Angular y React siguiendo las convenciones del proyecto.",
+        "model": "local",
+        "promptVersion": "1.0.0",
+        "reviewedAt": "2026-05-06T00:00:00.000Z"
+      }
+    },
+    "unit-test-review": {
+      "source": "pragma/autoskills",
+      "skillPath": "pragma/autoskills/unit-test-review",
+      "type": "workflow",
+      "commitSha": "local",
+      "files": [
+        "SKILL.md"
+      ],
+      "sha256": {
+        "SKILL.md": "a5ed9dd00703fe06be82b73d732274e57c0cafa91240fb3ba9ccc7400cf66d68"
+      },
+      "bundleHash": "0b4e879b347cd77103db293669ea804cdb31a97bc75ca670d71dc8f9ddbf88d2",
+      "review": {
+        "status": "approved",
+        "flags": [],
+        "summary": "Workflow para revisar y completar tests unitarios Angular y React.",
+        "model": "local",
+        "promptVersion": "1.0.0",
+        "reviewedAt": "2026-05-06T00:00:00.000Z"
+      }
     }
   }
 }

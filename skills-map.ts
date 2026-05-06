@@ -21,6 +21,7 @@ export interface Technology {
   name: string;
   detect: DetectConfig;
   skills: string[];
+  workflows?: string[];
 }
 
 export interface ComboSkill {
@@ -42,6 +43,10 @@ export const SKILLS_MAP: Technology[] = [
     skills: [
       "pragma/autoskills/react-security",
       "pragma/autoskills/vercel-react-best-practices",
+    ],
+    workflows: [
+      "pragma/autoskills/create-component",
+      "pragma/autoskills/unit-test-review",
     ],
   },
   {
@@ -112,6 +117,10 @@ export const SKILLS_MAP: Technology[] = [
       "angular/angular/adev-writing-guide",
       "pragma/autoskills/angular-security",
       "pragma/autoskills/clean-architecture-uml",
+    ],
+    workflows: [
+      "pragma/autoskills/create-component",
+      "pragma/autoskills/unit-test-review",
     ],
   },
   {
@@ -1388,6 +1397,77 @@ export const AGENT_FOLDER_MAP: Record<string, string> = {
   ".codebuddy": "codebuddy",
   ".continue": "continue",
   ".kiro": "kiro-cli",
+};
+
+// ── IDE Map ───────────────────────────────────────────────────
+// Mapa unificado de IDEs: carpeta de detección + configuración
+// por tipo de artefacto (skill, agent, rule, prompt).
+
+export type ArtifactType = "skill" | "agent" | "rule" | "prompt";
+
+export interface IDEArtifactConfig {
+  folder: string;                        // carpeta relativa al home o al proyecto
+  format: "dir" | "file" | "append";    // dir=carpeta, file=archivo plano, append=acumular
+  fileExt: string;                       // extensión si format="file"|"append"
+}
+
+export interface IDEConfig {
+  detectionPath: string;   // carpeta que indica que el IDE está instalado
+  isGlobal: boolean;       // true=home del usuario, false=raíz del proyecto
+  artifacts: Record<ArtifactType, IDEArtifactConfig>;
+}
+
+export const IDE_MAP: Record<string, IDEConfig> = {
+  "claude-code": {
+    detectionPath: ".claude",
+    isGlobal: true,
+    artifacts: {
+      skill:  { folder: ".claude/skills",  format: "dir",  fileExt: ""    },
+      agent:  { folder: ".claude/agents",  format: "file", fileExt: ".md" },
+      rule:   { folder: ".claude/rules",   format: "file", fileExt: ".md" },
+      prompt: { folder: ".claude/prompts", format: "file", fileExt: ".md" },
+    },
+  },
+  "kiro": {
+    detectionPath: ".kiro",
+    isGlobal: true,
+    artifacts: {
+      skill:  { folder: ".kiro/skills",  format: "dir",  fileExt: ""    },
+      agent:  { folder: ".kiro/agents",  format: "file", fileExt: ".md" },
+      rule:   { folder: ".kiro/rules",   format: "file", fileExt: ".md" },
+      prompt: { folder: ".kiro/prompts", format: "file", fileExt: ".md" },
+    },
+  },
+  "copilot": {
+    detectionPath: ".vscode",
+    isGlobal: true,
+    artifacts: {
+      skill:  { folder: ".copilot/skills",  format: "dir",    fileExt: ""                        },
+      agent:  { folder: ".copilot/agents",  format: "file",   fileExt: ".md"                     },
+      rule:   { folder: ".copilot",         format: "append", fileExt: "copilot-instructions.md" },
+      prompt: { folder: ".copilot/prompts", format: "file",   fileExt: ".md"                     },
+    },
+  },
+  "windsurf": {
+    detectionPath: ".codeium/windsurf",
+    isGlobal: true,
+    artifacts: {
+      skill:  { folder: ".windsurf/skills",    format: "dir",  fileExt: ""    },
+      agent:  { folder: ".windsurf/workflows", format: "file", fileExt: ".md" },
+      rule:   { folder: ".windsurf/rules",     format: "file", fileExt: ".md" },
+      prompt: { folder: ".windsurf/prompts",   format: "file", fileExt: ".md" },
+    },
+  },
+  "cursor": {
+    detectionPath: ".cursor",
+    isGlobal: false,
+    artifacts: {
+      skill:  { folder: ".cursor/skills",  format: "dir",  fileExt: ""     },
+      agent:  { folder: ".cursor/agents",  format: "file", fileExt: ".md"  },
+      rule:   { folder: ".cursor/rules",   format: "file", fileExt: ".mdc" },
+      prompt: { folder: ".cursor/prompts", format: "file", fileExt: ".md"  },
+    },
+  },
 };
 
 export const WEB_FRONTEND_EXTENSIONS: Set<string> = new Set([

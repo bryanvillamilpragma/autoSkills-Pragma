@@ -39,11 +39,15 @@ export interface LLMResult {
 // ── API key ───────────────────────────────────────────────────
 
 export function getApiKey(): string | null {
-  if (process.env.ANTHROPIC_API_KEY) return process.env.ANTHROPIC_API_KEY;
+  // Leer .env manualmente primero — process.loadEnvFile() no sobreescribe
+  // variables ya definidas en el entorno (ej: Claude Code las inyecta vacías)
   try {
-    process.loadEnvFile();
-    if (process.env.ANTHROPIC_API_KEY) return process.env.ANTHROPIC_API_KEY;
+    const content = readFileSync(".env", "utf-8");
+    const match = content.match(/^ANTHROPIC_API_KEY=(.+)$/m);
+    if (match?.[1]?.trim()) return match[1].trim();
   } catch {}
+  // Fallback al entorno del shell
+  if (process.env.ANTHROPIC_API_KEY) return process.env.ANTHROPIC_API_KEY;
   return null;
 }
 
