@@ -24,12 +24,13 @@ import type { InstallSecurityCheck } from "./installer.js";
 import {
     clearAutoskillsCache,
     getRegistryDir,
+    installAll,
     installSkillGlobal,
     loadRegistry,
     securityCheckForSkillPath,
 } from "./installer.js";
 import type { ComboSkill, SkillEntry, Technology } from "./lib.js";
-import { collectAgents, collectAutoRules, collectSkills, detectAgents, detectInstalledIDEs, detectTechnologies, getInstalledSkillNames, parseSkillPath } from "./lib.js";
+import { collectAutoRules, collectSkills, detectAgents, detectInstalledIDEs, detectTechnologies, getInstalledSkillNames, parseSkillPath } from "./lib.js";
 import { formatTime, multiSelect, printBanner } from "./ui.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -53,7 +54,7 @@ process.on("SIGINT", () => {
 
 // ── CLI ──────────────────────────────────────────────────────
 
-interface CliArgs {
+export interface CliArgs {
   autoYes: boolean;
   dryRun: boolean;
   verbose: boolean;
@@ -62,32 +63,50 @@ interface CliArgs {
   logout: boolean;
   agents: string[];
   listAgents: boolean;
+  workflow: string | null;
 }
 
-function parseArgs(): CliArgs {
-  const args = process.argv.slice(2);
-  const agents: string[] = [];
-  const consumedByFlag = new Set<number>();
-  const agentIdx = args.findIndex((a) => a === "-a" || a === "--agent");
-  if (agentIdx !== -1) {
-    consumedByFlag.add(agentIdx);
-    for (let i = agentIdx + 1; i < args.length; i++) {
-      if (args[i].startsWith("-")) break;
-      agents.push(args[i]);
-      consumedByFlag.add(i);
+// Positional words that activate the agents screen (not treated as workflow names)
+const RESERVED_COMMANDS = ["agents", "agent"];
+
+export function parseArgs(argv: string[] = process.argv.slice(2)): CliArgs {
+  const consumed = new Set<number>();
+
+  // Collect values for the -a / --agent IDE-targeting flag
+  const agentFlagIdx = argv.findIndex((a) => a === "-a" || a === "--agent");
+  const agentFlagValues: string[] = [];
+  if (agentFlagIdx !== -1) {
+    consumed.add(agentFlagIdx);
+    for (let i = agentFlagIdx + 1; i < argv.length; i++) {
+      if (argv[i].startsWith("-")) break;
+      agentFlagValues.push(argv[i]);
+      consumed.add(i);
     }
   }
-  const listAgents = args.includes("--agents");
+
+  // Extract positional arguments (not flags, not flag values)
+  const positionals: string[] = [];
+  for (let i = 0; i < argv.length; i++) {
+    if (consumed.has(i)) continue;
+    if (argv[i].startsWith("-")) continue;
+    positionals.push(argv[i]);
+  }
+
+  const firstPositional = positionals[0] ?? null;
+  const isAgentsCommand = firstPositional !== null && RESERVED_COMMANDS.includes(firstPositional);
+  const workflow = firstPositional !== null && !isAgentsCommand ? firstPositional : null;
+  const listAgents = isAgentsCommand || argv.includes("--agents");
 
   return {
-    autoYes: args.includes("-y") || args.includes("--yes"),
-    dryRun: args.includes("--dry-run"),
-    verbose: args.includes("--verbose") || args.includes("-v"),
-    help: args.includes("--help") || args.includes("-h"),
-    clearCache: args.includes("--clear-cache"),
-    logout: args.includes("--logout"),
-    agents,
+    autoYes: argv.includes("-y") || argv.includes("--yes"),
+    dryRun: argv.includes("--dry-run"),
+    verbose: argv.includes("--verbose") || argv.includes("-v"),
+    help: argv.includes("--help") || argv.includes("-h"),
+    clearCache: argv.includes("--clear-cache"),
+    logout: argv.includes("--logout"),
+    agents: agentFlagValues,
     listAgents,
+    workflow,
   };
 }
 
@@ -101,6 +120,7 @@ function showHelp(): void {
     npx autoskills ${dim("--dry-run")}            Show what would be installed
     npx autoskills ${dim("--clear-cache")}        Clear downloaded skills cache
     npx autoskills ${dim("-a cursor claude-code")} Install for specific IDEs only
+    npx autoskills ${dim("agents")}               Show & install agents/workflows for your stack
     npx autoskills ${dim("--logout")}             Sign out and remove cached token
 
   ${bold("Options:")}
@@ -527,10 +547,164 @@ async function runAuthGate(): Promise<void> {
   }
 }
 
+// ── Agents registry ───────────────────────────────────────────
+
+interface AgentEntry {
+  name: string;        // "create-component"
+  description: string; // short label shown in the list
+  requires: string[];  // technology IDs that unlock this agent
+  skillPath: string;   // registry path used by installAll
+  hint: string;        // sub-text shown in the selector
+}
+
+// Hardcoded until the remote registry natively carries agent metadata.
+// Keep in sync with skills-map.ts workflows/agents fields.
+const AGENTS_REGISTRY: AgentEntry[] = [
+  {
+    name: "create-component",
+    description: "Crea un componente nuevo siguiendo las convenciones del proyecto",
+    requires: ["react", "angular"],
+    skillPath: "pragma/autoskills/create-component",
+    hint: "Componentes funcionales con hooks y RTL",
+  },
+  {
+    name: "unit-test-review",
+    description: "Revisa y genera unit tests siguiendo el patrón del proyecto",
+    requires: ["react", "angular"],
+    skillPath: "pragma/autoskills/unit-test-review",
+    hint: "Tests con Vitest/Jest y Testing Library",
+  },
+  {
+    name: "create-view",
+    description: "Crea vistas y páginas con las convenciones del stack",
+    requires: ["react", "angular", "nextjs"],
+    skillPath: "pragma/autoskills/agents/create-view",
+    hint: "Vistas estructuradas con routing y estado",
+  },
+];
+
+// ── Agents screen ─────────────────────────────────────────────
+
+async function showAvailableAgents(
+  projectDir: string,
+  autoYes: boolean,
+  dryRun: boolean,
+  verbose: boolean,
+): Promise<void> {
+  await printBanner(VERSION);
+
+  const { detected, isFrontend, combos } = detectTechnologies(projectDir);
+  printDetected(detected, combos, isFrontend);
+
+  // Filter registry to agents compatible with the detected stack
+  const detectedIds = new Set(detected.map((t) => t.id));
+  const availableAgents = AGENTS_REGISTRY.filter((a) => a.requires.some((id) => detectedIds.has(id)));
+
+  if (availableAgents.length === 0) {
+    log(yellow("  ⚠ No agents available for your stack yet."));
+    if (detected.length > 0) {
+      log(dim(`  Stack detected: ${detected.map((t) => t.id).join(", ")}`));
+    }
+    log();
+    log(dim('  Run "npx autoskills-pragma" to install skills instead.'));
+    log();
+    return;
+  }
+
+  // Build SkillEntry list (with extra metadata for display)
+  const installedNames = getInstalledSkillNames(projectDir);
+
+  interface AgentSkillEntry extends SkillEntry {
+    agent: AgentEntry;
+    tech: string; // first matching tech name for grouping
+  }
+
+  const entries: AgentSkillEntry[] = availableAgents.map((agent) => {
+    const { skillName } = parseSkillPath(agent.skillPath);
+    const matchingTech = detected.find((t) => agent.requires.includes(t.id));
+    return {
+      skill: agent.skillPath,
+      sources: [matchingTech?.name ?? agent.requires[0]],
+      installed: installedNames.has(skillName),
+      agent,
+      tech: matchingTech?.name ?? agent.requires[0],
+    };
+  });
+
+  const newCount = entries.filter((e) => !e.installed).length;
+  const installedCount = entries.length - newCount;
+  const countLabel =
+    installedCount > 0
+      ? `(${entries.length} found, ${installedCount} already installed)`
+      : `(${entries.length} found)`;
+
+  log(cyan("  ◆ ") + bold("Available agents for your stack:") + "  " + dim(countLabel));
+  log();
+
+  // Non-interactive or dry-run — print list and return
+  if (dryRun || !process.stdin.isTTY) {
+    for (const entry of entries) {
+      const { skillName } = parseSkillPath(entry.skill);
+      const installedTag = entry.installed ? dim(" (installed)") : "";
+      const techSuffix = entry.tech ? `  ${dim(`← ${entry.tech}`)}` : "";
+      log(`  ${green("›")} ${bold(skillName)}  ${dim(entry.agent.hint)}${installedTag}${techSuffix}`);
+    }
+    log();
+    if (dryRun) {
+      log(dim("  --dry-run: nothing was installed."));
+      log();
+    }
+    return;
+  }
+
+  // Interactive selection
+  const selected = await multiSelect(entries, {
+    labelFn: (entry) => {
+      const { skillName } = parseSkillPath(entry.skill);
+      const installedTag = entry.installed ? dim(" (installed)") : "";
+      return `${formatSkillLabel(entry.skill, { styled: true })}  ${dim(entry.agent.hint)}${installedTag}`;
+    },
+    hintFn: () => "",
+    groupFn: (entry) => entry.tech,
+    initialSelected: entries.map((e) => !e.installed),
+  });
+
+  if (selected.length === 0) {
+    log();
+    log(dim("  Nothing selected."));
+    log();
+    return;
+  }
+
+  const toInstall = selected.filter((e) => !e.installed);
+
+  if (toInstall.length === 0) {
+    log(dim("  All selected agents are already installed."));
+    log();
+    return;
+  }
+
+  const ideAgents = detectAgents();
+  log();
+  log(cyan("  ◆ ") + bold("Installing agents..."));
+  log();
+
+  const result = await installAll(toInstall, ideAgents, { projectDir, verbose });
+
+  log(green(`  ✔ ${result.installed} agent${result.installed !== 1 ? "s" : ""} installed`));
+  if (result.failed > 0) {
+    log(yellow(`  ⚠ ${result.failed} failed`));
+  }
+  log();
+  log(green("  ✨ ") + bold("Agents installed! Now go to your IDE and ask your agent to do things."));
+  log(dim("     Your agent will use the installed workflows automatically."));
+  log();
+}
+
 // ── Main ─────────────────────────────────────────────────────
 
 async function main(): Promise<void> {
-  const { autoYes, dryRun, verbose, help, clearCache, logout, agents, listAgents } = parseArgs();
+  const { autoYes, dryRun, verbose, help, clearCache, logout, agents, listAgents, workflow } = parseArgs();
 
   if (help) {
     showHelp();
@@ -558,22 +732,23 @@ async function main(): Promise<void> {
   // ── Auth gate (CI bypass: AUTOSKILLS_SKIP_AUTH=1) ────────
   // await runAuthGate(); // TODO: temporalmente deshabilitado
 
-  // ── Listar agents disponibles ──────────────────────────
+  // ── Agents / workflows screen ──────────────────────────
   if (listAgents) {
-    const projectDir = resolve(".");
-    const { detected, combos } = detectTechnologies(projectDir);
-    const agentEntries = collectAgents({ detected, combos });
+    await showAvailableAgents(resolve("."), autoYes, dryRun, verbose);
+    process.exit(0);
+  }
+
+  // ── Educational message for workflow positional ─────────
+  if (workflow) {
     log("");
-    log(cyan("  ◆ ") + bold("Agents disponibles para este proyecto"));
+    log(cyan("  ◆ ") + bold("autoskills-pragma installs tools — your IDE runs them."));
     log("");
-    if (agentEntries.length === 0) {
-      log(dim("  No hay agents disponibles para el stack detectado."));
-    } else {
-      for (const a of agentEntries) {
-        const label = formatSkillLabel(a.skill, { styled: true });
-        log(`  ${green("›")} ${label}  ${dim(`← ${a.sources.join(", ")}`)}`);
-      }
-    }
+    log(dim(`  To use "${workflow}", go to your IDE and ask your agent:`));
+    log(cyan(`    "use the ${workflow} workflow"`));
+    log("");
+    log(dim("  Your agent will use the installed skills and workflows automatically."));
+    log("");
+    log(dim('  Tip: run ') + cyan('"npx autoskills-pragma agents"') + dim(" to install agents first."));
     log("");
     process.exit(0);
   }
@@ -711,7 +886,12 @@ async function main(): Promise<void> {
   log();
 }
 
-main().catch((err: Error) => {
-  console.error(red(`\n   Error: ${err.message}\n`));
-  process.exit(1);
-});
+// Run main() only when invoked as CLI entry point — not when imported by tests.
+// When a test does `import('../main.js')`, process.argv[1] is the test file path.
+const __filename = fileURLToPath(import.meta.url);
+if (process.argv[1]?.endsWith("index.mjs") || process.argv[1] === __filename) {
+  main().catch((err: Error) => {
+    console.error(red(`\n   Error: ${err.message}\n`));
+    process.exit(1);
+  });
+}

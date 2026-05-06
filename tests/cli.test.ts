@@ -1,8 +1,9 @@
-import { ok } from "node:assert/strict";
+import { ok, strictEqual } from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { describe, it } from "node:test";
+import { before, describe, it } from "node:test";
+import type { CliArgs } from "../main.js";
 import { addWorkspace, useTmpDir, writeFile, writeJson, writePackageJson } from "./helpers.js";
 
 const CLI_PATH = resolve(import.meta.dirname!, "..", "index.mjs");
@@ -15,6 +16,54 @@ function run(args: string[] = [], cwd: string = process.cwd()): string {
     env: { ...process.env, NO_COLOR: "1", AUTOSKILLS_SKIP_AUTH: "1" },
   });
 }
+
+// ── parseArgs unit tests ──────────────────────────────────────
+describe("parseArgs", () => {
+  let parseArgs: (argv?: string[]) => CliArgs;
+
+  before(async () => {
+    const mod = await import("../main.js") as { parseArgs: (argv?: string[]) => CliArgs };
+    parseArgs = mod.parseArgs;
+  });
+
+  it('"agents" activa listAgents y no workflow', () => {
+    const r = parseArgs(["agents"]);
+    strictEqual(r.listAgents, true);
+    strictEqual(r.workflow, null);
+  });
+
+  it('"agent" también activa listAgents', () => {
+    const r = parseArgs(["agent"]);
+    strictEqual(r.listAgents, true);
+    strictEqual(r.workflow, null);
+  });
+
+  it('"--agents" activa listAgents', () => {
+    const r = parseArgs(["--agents"]);
+    strictEqual(r.listAgents, true);
+    strictEqual(r.workflow, null);
+  });
+
+  it('"create-component" queda como workflow (para mostrar mensaje educativo)', () => {
+    const r = parseArgs(["create-component"]);
+    strictEqual(r.listAgents, false);
+    strictEqual(r.workflow, "create-component");
+  });
+
+  it('sin argumentos: listAgents false, workflow null', () => {
+    const r = parseArgs([]);
+    strictEqual(r.listAgents, false);
+    strictEqual(r.workflow, null);
+  });
+
+  it('flag -a no se mezcla con positionals', () => {
+    const r = parseArgs(["-a", "cursor", "claude-code"]);
+    strictEqual(r.listAgents, false);
+    strictEqual(r.workflow, null);
+    ok(r.agents.includes("cursor"));
+    ok(r.agents.includes("claude-code"));
+  });
+});
 
 describe("CLI", () => {
   const tmp = useTmpDir();
@@ -474,6 +523,62 @@ describe("CLI", () => {
       const output = run(["--dry-run", "-a", "cursor"], tmp.path);
       ok(output.includes("Agents: cursor"));
       ok(!output.includes("universal"));
+    });
+  });
+
+  describe("agents command", () => {
+    const tmp = useTmpDir();
+
+    it('"agents" no muestra pantalla de skills', () => {
+      writePackageJson(tmp.path, { dependencies: { react: "^19" } });
+      const output = run(["agents", "--dry-run"], tmp.path);
+      ok(!output.includes("Skills to install"), "no debe mostrar pantalla de skills");
+      ok(!output.includes("Select skills to install"), "no debe mostrar selector de skills");
+    });
+
+    it('"agents" muestra pantalla de agents para React', () => {
+      writePackageJson(tmp.path, { dependencies: { react: "^19" } });
+      const output = run(["agents", "--dry-run"], tmp.path);
+      ok(output.includes("Available agents"), "debe mostrar cabecera de agents");
+      ok(output.includes("create-component"), "debe listar create-component para React");
+    });
+
+    it('"--agents" también activa la pantalla de agents', () => {
+      writePackageJson(tmp.path, { dependencies: { react: "^19" } });
+      const output = run(["--agents", "--dry-run"], tmp.path);
+      ok(!output.includes("Skills to install"), "no debe mostrar pantalla de skills");
+      ok(output.includes("Available agents"), "debe mostrar cabecera de agents");
+    });
+
+    it('"agents" sin stack compatible muestra mensaje de no hay agents', () => {
+      // TypeScript only — no React/Angular/Next.js → no agents in registry
+      writePackageJson(tmp.path, { devDependencies: { typescript: "^5" } });
+      writeFile(tmp.path, "tsconfig.json", "{}");
+      const output = run(["agents", "--dry-run"], tmp.path);
+      ok(
+        output.includes("No agents available") || output.includes("No supported"),
+        "debe indicar que no hay agents para el stack",
+      );
+    });
+  });
+
+  describe("workflow educational message", () => {
+    const tmp = useTmpDir();
+
+    it('"create-component" muestra mensaje educativo sin ejecutar nada', () => {
+      writePackageJson(tmp.path, { dependencies: { react: "^19" } });
+      const output = run(["create-component"], tmp.path);
+      ok(output.includes("installs tools"), "debe mencionar que el CLI instala herramientas");
+      ok(output.includes("create-component"), "debe mostrar el nombre del workflow");
+      ok(output.includes("IDE"), "debe mencionar el IDE");
+      ok(!output.includes("Skills to install"), "no debe mostrar pantalla de skills");
+    });
+
+    it('cualquier positional desconocido muestra mensaje educativo', () => {
+      writePackageJson(tmp.path, { dependencies: { react: "^19" } });
+      const output = run(["my-custom-workflow"], tmp.path);
+      ok(output.includes("installs tools"), "debe mostrar mensaje educativo");
+      ok(output.includes("my-custom-workflow"), "debe mostrar el nombre dado");
     });
   });
 });
