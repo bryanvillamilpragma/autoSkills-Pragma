@@ -1,5 +1,5 @@
 import type { Dirent } from "node:fs";
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, realpathSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -24,7 +24,6 @@ import type { InstallSecurityCheck } from "./installer.js";
 import {
     clearAutoskillsCache,
     getRegistryDir,
-    installAll,
     installSkillGlobal,
     loadRegistry,
     securityCheckForSkillPath,
@@ -684,19 +683,50 @@ async function showAvailableAgents(
     return;
   }
 
-  const ideAgents = detectAgents();
+  const { global: globalIDEs, local: localIDEs } = detectInstalledIDEs(projectDir);
+  const allIDEs = [...globalIDEs, ...localIDEs];
+
+  if (allIDEs.length === 0) {
+    log(yellow("  ⚠ No se detectó ningún IDE de IA instalado."));
+    log(dim("  Instala Claude Code, Cursor, Kiro, Windsurf o VS Code con Copilot."));
+    log();
+    return;
+  }
+
   log();
-  log(cyan("  ◆ ") + bold("Installing agents..."));
+  log(cyan("  ◆ ") + bold("Installing agents globally..."));
+  log(dim(`  IDEs: ${allIDEs.map((i) => i.id).join(", ")}`));
   log();
 
-  const result = await installAll(toInstall, ideAgents, { projectDir, verbose });
+  let totalInstalled = 0;
+  let totalFailed = 0;
 
-  log(green(`  ✔ ${result.installed} agent${result.installed !== 1 ? "s" : ""} installed`));
-  if (result.failed > 0) {
-    log(yellow(`  ⚠ ${result.failed} failed`));
+  for (const entry of toInstall) {
+    const result = await installSkillGlobal(
+      entry.skill,
+      globalIDEs,
+      localIDEs,
+      { projectDir, verbose },
+    );
+    totalInstalled += result.installed.length;
+    totalFailed += result.failed.length;
+
+    if (verbose) {
+      for (const inst of result.installed) {
+        log(green("   ✔") + dim(` ${result.skillName} → ${inst.ide}`));
+      }
+      for (const fail of result.failed) {
+        log(red("   ✘") + dim(` ${result.skillName} → ${fail.ide}: ${fail.error}`));
+      }
+    }
+  }
+
+  log(green(`  ✔ ${totalInstalled} installation${totalInstalled !== 1 ? "s" : ""} completed`));
+  if (totalFailed > 0) {
+    log(yellow(`  ⚠ ${totalFailed} failed`));
   }
   log();
-  log(green("  ✨ ") + bold("Agents installed! Now go to your IDE and ask your agent to do things."));
+  log(green("  ✨ ") + bold("Agents installed globally! Now go to your IDE and ask your agent to do things."));
   log(dim("     Your agent will use the installed workflows automatically."));
   log();
 }
@@ -887,9 +917,16 @@ async function main(): Promise<void> {
 }
 
 // Run main() only when invoked as CLI entry point — not when imported by tests.
-// When a test does `import('../main.js')`, process.argv[1] is the test file path.
+// Uses realpathSync so npm-link symlinks resolve correctly.
+function _realpath(p: string): string {
+  try { return realpathSync(p); } catch { return p; }
+}
+
 const __filename = fileURLToPath(import.meta.url);
-if (process.argv[1]?.endsWith("index.mjs") || process.argv[1] === __filename) {
+const _argv1 = _realpath(process.argv[1] ?? "");
+const _self  = _realpath(__filename);
+
+if (_argv1.endsWith("index.mjs") || _argv1 === _self) {
   main().catch((err: Error) => {
     console.error(red(`\n   Error: ${err.message}\n`));
     process.exit(1);
