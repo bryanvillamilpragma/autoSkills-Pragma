@@ -22,6 +22,9 @@ export interface Technology {
   detect: DetectConfig;
   skills: string[];
   workflows?: string[];
+  autoRules?: string[];
+  autoPrompts?: string[];
+  agents?: string[];
 }
 
 export interface ComboSkill {
@@ -48,6 +51,15 @@ export const SKILLS_MAP: Technology[] = [
       "pragma/autoskills/create-component",
       "pragma/autoskills/unit-test-review",
     ],
+    autoRules: [
+      "pragma/autoskills/rules/solid-clean",
+      "pragma/autoskills/rules/code-test",
+      "pragma/autoskills/rules/performance",
+      "pragma/autoskills/rules/security",
+    ],
+    agents: [
+      "pragma/autoskills/agents/create-view",
+    ],
   },
   {
     id: "nextjs",
@@ -59,6 +71,15 @@ export const SKILLS_MAP: Technology[] = [
     skills: [
       "vercel-labs/next-skills/next-best-practices",
       "pragma/autoskills/nextjs-shadcn",
+    ],
+    autoRules: [
+      "pragma/autoskills/rules/solid-clean",
+      "pragma/autoskills/rules/code-test",
+      "pragma/autoskills/rules/performance",
+      "pragma/autoskills/rules/security",
+    ],
+    agents: [
+      "pragma/autoskills/agents/create-view",
     ],
   },
   {
@@ -122,6 +143,15 @@ export const SKILLS_MAP: Technology[] = [
       "pragma/autoskills/create-component",
       "pragma/autoskills/unit-test-review",
     ],
+    autoRules: [
+      "pragma/autoskills/rules/clean-architecture",
+      "pragma/autoskills/rules/solid-clean",
+      "pragma/autoskills/rules/code-test",
+      "pragma/autoskills/rules/security",
+    ],
+    agents: [
+      "pragma/autoskills/agents/create-view",
+    ],
   },
   {
     id: "astro",
@@ -162,6 +192,9 @@ export const SKILLS_MAP: Technology[] = [
     skills: [
       "wshobson/agents/typescript-advanced-types",
       "pragma/autoskills/typescript-best-practices",
+    ],
+    autoRules: [
+      "pragma/autoskills/rules/solid-clean",
     ],
   },
   {

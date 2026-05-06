@@ -716,6 +716,33 @@ export function collectWorkflows(params: {
   return result;
 }
 
+export function collectAutoRules(params: {
+  detected: Technology[];
+  installedNames: string[] | Set<string>;
+}): SkillEntry[] {
+  const { detected, installedNames } = params;
+  const installedSet =
+    installedNames instanceof Set ? installedNames : new Set(installedNames);
+  const seen = new Set<string>();
+  const result: SkillEntry[] = [];
+
+  for (const tech of detected) {
+    if (!tech.autoRules) continue;
+    for (const rulePath of tech.autoRules) {
+      const { skillName } = parseSkillPath(rulePath);
+      if (seen.has(skillName) || installedSet.has(skillName)) continue;
+      seen.add(skillName);
+      result.push({
+        skill: rulePath,
+        sources: [tech.name],
+        installed: false,
+      });
+    }
+  }
+
+  return result;
+}
+
 interface CollectSkillsOptions {
   detected: Technology[];
   isFrontend: boolean;
