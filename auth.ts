@@ -328,6 +328,20 @@ export async function authenticate(): Promise<TokenData> {
   return tokenData
 }
 
+async function revokeToken(token: string): Promise<void> {
+  const body = new URLSearchParams({ token }).toString()
+  await httpsPost('oauth2.googleapis.com', '/revoke', body)
+}
+
 export async function logout(): Promise<void> {
+  const stored = loadToken()
+  if (stored) {
+    try {
+      // Prefer refresh_token: revoking it invalidates both tokens on Google's side.
+      await revokeToken(stored.refresh_token ?? stored.access_token)
+    } catch {
+      // Network failures must not prevent local token removal.
+    }
+  }
   clearToken()
 }
