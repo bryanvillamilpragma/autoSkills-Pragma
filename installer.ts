@@ -545,6 +545,49 @@ export async function installSkillGlobal(
   return { success: failed.length === 0, skillName, installed, failed };
 }
 
+/**
+ * Install a skill that lives locally (e.g. pragma custom agents in skills-registry/)
+ * but is NOT present in index.json. Copies files directly to the canonical global
+ * directory (~/.agents/skills/<name>) and writes artifacts for each detected IDE.
+ */
+export function installLocalSkillGlobal(
+  skillName: string,
+  sourceDir: string,
+  globalIDEs: DetectedIDE[],
+  localIDEs: DetectedIDE[],
+  opts: InstallOptions = {},
+  artifactType: ArtifactType = "skill",
+): GlobalInstallResult {
+  if (!existsSync(sourceDir)) {
+    return { success: false, skillName, installed: [], failed: [], error: `skill directory not found: ${sourceDir}` };
+  }
+
+  const canonicalDir = getCanonicalDir(skillName, artifactType);
+  try {
+    rmSync(canonicalDir, { recursive: true, force: true });
+    copyDir(sourceDir, canonicalDir);
+    opts.onTrace?.(`copied local skill ${skillName} → ${canonicalDir}`);
+  } catch (err) {
+    return { success: false, skillName, installed: [], failed: [], error: `copy failed: ${(err as Error).message}` };
+  }
+
+  const installed: Array<{ ide: string; path: string }> = [];
+  const failed: Array<{ ide: string; error: string }> = [];
+
+  for (const ide of [...globalIDEs, ...localIDEs]) {
+    try {
+      const path = writeArtifactForIDE(skillName, canonicalDir, artifactType, ide);
+      installed.push({ ide: ide.id, path });
+    } catch (err) {
+      const error = (err as Error).message;
+      opts.onTrace?.(`failed writing to ${ide.id}: ${error}`);
+      failed.push({ ide: ide.id, error });
+    }
+  }
+
+  return { success: failed.length === 0, skillName, installed, failed };
+}
+
 export function agentFolderFor(agent: string): string | null {
   for (const [folder, name] of Object.entries(AGENT_FOLDER_MAP)) {
     if (name === agent) return folder;

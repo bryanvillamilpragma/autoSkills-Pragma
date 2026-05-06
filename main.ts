@@ -24,6 +24,7 @@ import type { InstallSecurityCheck } from "./installer.js";
 import {
     clearAutoskillsCache,
     getRegistryDir,
+    installLocalSkillGlobal,
     installSkillGlobal,
     loadRegistry,
     securityCheckForSkillPath,
@@ -700,23 +701,37 @@ async function showAvailableAgents(
 
   let totalInstalled = 0;
   let totalFailed = 0;
+  const registryDir = getRegistryDir();
 
   for (const entry of toInstall) {
-    const result = await installSkillGlobal(
-      entry.skill,
-      globalIDEs,
-      localIDEs,
-      { projectDir, verbose },
-    );
+    const localSkillDir = join(registryDir, entry.agent.name);
+    const result = existsSync(localSkillDir)
+      ? installLocalSkillGlobal(
+          entry.agent.name,
+          localSkillDir,
+          globalIDEs,
+          localIDEs,
+          { projectDir, verbose },
+        )
+      : await installSkillGlobal(
+          entry.skill,
+          globalIDEs,
+          localIDEs,
+          { projectDir, verbose },
+        );
+
     totalInstalled += result.installed.length;
     totalFailed += result.failed.length;
 
-    if (verbose) {
+    if (verbose || result.error) {
+      if (result.error) {
+        log(red("   ✘") + dim(` ${entry.agent.name}: ${result.error}`));
+      }
       for (const inst of result.installed) {
-        log(green("   ✔") + dim(` ${result.skillName} → ${inst.ide}`));
+        log(green("   ✔") + dim(` ${entry.agent.name} → ${inst.ide}: ${inst.path}`));
       }
       for (const fail of result.failed) {
-        log(red("   ✘") + dim(` ${result.skillName} → ${fail.ide}: ${fail.error}`));
+        log(red("   ✘") + dim(` ${entry.agent.name} → ${fail.ide}: ${fail.error}`));
       }
     }
   }
