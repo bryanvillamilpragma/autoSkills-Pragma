@@ -12,7 +12,7 @@ function run(args: string[] = [], cwd: string = process.cwd()): string {
     cwd,
     encoding: "utf-8",
     timeout: 10_000,
-    env: { ...process.env, NO_COLOR: "1" },
+    env: { ...process.env, NO_COLOR: "1", AUTOSKILLS_SKIP_AUTH: "1" },
   });
 }
 

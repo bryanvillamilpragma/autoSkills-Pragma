@@ -126,6 +126,55 @@ Symlinks a carpetas de cada agente (.cursor/skills/, .claude/skills/, etc.)
 
 ---
 
+## Auth System
+
+autoskills-pragma requiere autenticación con una cuenta de Google `@pragma.com.co`.
+
+### Cómo funciona
+
+- OAuth 2.0 para Installed Applications (RFC 8252) con PKCE obligatorio (RFC 7636)
+- Flujo: loopback IP redirect (`http://127.0.0.1:<puerto-efímero>`)
+- Token almacenado en `~/.config/autoskills-pragma/auth.json` (permisos: `600`)
+- Refresh automático cuando el token expira (tokens de Google expiran en 1 h)
+- Validación de dominio vía claim `hd` del ID token de Google
+
+### Setup en Google Cloud Console
+
+1. Crear proyecto `autoskills-pragma-auth` en Google Cloud Console
+2. Habilitar **Google Identity API** / **People API**
+3. OAuth consent screen:
+   - User Type: **Internal** (restringe a cuentas del workspace `pragma.com.co`)
+   - Scopes: `openid`, `email`
+4. Credentials → Create → **Desktop application**
+   - Copiar `CLIENT_ID` y `CLIENT_SECRET`
+   - Para desktop apps el `client_secret` no es un secreto verdadero (documentado por Google)
+5. Inyectar los valores como variables de entorno en el build:
+   - `GOOGLE_CLIENT_ID`
+   - `GOOGLE_CLIENT_SECRET`
+
+### Variables de entorno
+
+| Variable                 | Descripción                                                         |
+| ------------------------ | ------------------------------------------------------------------- |
+| `GOOGLE_CLIENT_ID`       | Client ID de la app de escritorio en Google Cloud Console           |
+| `GOOGLE_CLIENT_SECRET`   | Client Secret de la app de escritorio en Google Cloud Console       |
+| `AUTOSKILLS_SKIP_AUTH`   | Valor `1` omite la autenticación (para pipelines CI/CD)             |
+| `AUTOSKILLS_CONFIG_DIR`  | Sobreescribe el directorio base de configuración (útil en tests)    |
+
+### Ubicación del token
+
+```text
+~/.config/autoskills-pragma/auth.json   (permisos 600)
+```
+
+### Logout
+
+```bash
+npx autoskills-pragma --logout
+```
+
+---
+
 ## Supply Chain Security
 
 ### Reglas para agentes de IA y contribuidores

@@ -1,7 +1,9 @@
+import type { Dirent } from "node:fs";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { checkAuth, authenticate, logout as authLogout } from "./auth.js";
 import { cleanupClaudeMd } from "./claude.js";
 import {
     bold,
@@ -57,6 +59,7 @@ interface CliArgs {
   verbose: boolean;
   help: boolean;
   clearCache: boolean;
+  logout: boolean;
   agents: string[];
   workflow: string | null;
   listAgents: boolean;
@@ -65,14 +68,17 @@ interface CliArgs {
 function parseArgs(): CliArgs {
   const args = process.argv.slice(2);
   const agents: string[] = [];
+  const consumedByFlag = new Set<number>();
   const agentIdx = args.findIndex((a) => a === "-a" || a === "--agent");
   if (agentIdx !== -1) {
+    consumedByFlag.add(agentIdx);
     for (let i = agentIdx + 1; i < args.length; i++) {
       if (args[i].startsWith("-")) break;
       agents.push(args[i]);
+      consumedByFlag.add(i);
     }
   }
-  const positional = args.filter((a) => !a.startsWith("-"));
+  const positional = args.filter((a: string, i: number) => !a.startsWith("-") && !consumedByFlag.has(i));
   const workflow = positional.length > 0 ? positional[0] : null;
   const listAgents = args.includes("--agents");
 
@@ -82,6 +88,7 @@ function parseArgs(): CliArgs {
     verbose: args.includes("--verbose") || args.includes("-v"),
     help: args.includes("--help") || args.includes("-h"),
     clearCache: args.includes("--clear-cache"),
+    logout: args.includes("--logout"),
     agents,
     workflow,
     listAgents,
@@ -98,6 +105,7 @@ function showHelp(): void {
     npx autoskills ${dim("--dry-run")}            Show what would be installed
     npx autoskills ${dim("--clear-cache")}        Clear downloaded skills cache
     npx autoskills ${dim("-a cursor claude-code")} Install for specific IDEs only
+    npx autoskills ${dim("--logout")}             Sign out and remove cached token
 
   ${bold("Options:")}
     -y, --yes       Skip confirmation prompt
@@ -105,7 +113,11 @@ function showHelp(): void {
     --clear-cache   Clear downloaded skills cache
     -v, --verbose   Show install trace and error details
     -a, --agent     Install for specific IDEs only (e.g. cursor, claude-code)
+    --logout        Sign out from your @pragma.com.co account
     -h, --help      Show this help message
+
+  ${bold("Auth:")}
+    Requires a @pragma.com.co Google account. Set AUTOSKILLS_SKIP_AUTH=1 to bypass in CI.
 `);
 }
 
@@ -544,10 +556,23 @@ async function showAvailableAgents(): Promise<void> {
   log("");
 }
 
+// ── Auth gate ────────────────────────────────────────────────
+
+async function runAuthGate(): Promise<void> {
+  if (process.env.AUTOSKILLS_SKIP_AUTH) return;
+  const auth = await checkAuth();
+  if (auth) {
+    log(dim(`  ✓ Sesión activa: ${auth.email}\n`));
+  } else {
+    log(`\n  🔐 Se requiere autenticación con tu cuenta @pragma.com.co\n`);
+    await authenticate();
+  }
+}
+
 // ── Main ─────────────────────────────────────────────────────
 
 async function main(): Promise<void> {
-  const { autoYes, dryRun, verbose, help, clearCache, agents, workflow, listAgents } = parseArgs();
+  const { autoYes, dryRun, verbose, help, clearCache, logout, agents, workflow, listAgents } = parseArgs();
 
   if (help) {
     showHelp();
@@ -564,6 +589,16 @@ async function main(): Promise<void> {
     log();
     process.exit(0);
   }
+
+  if (logout) {
+    await authLogout();
+    log(green("  ✓ Sesión cerrada. Tokens eliminados."));
+    log();
+    process.exit(0);
+  }
+
+  // ── Auth gate (CI bypass: AUTOSKILLS_SKIP_AUTH=1) ────────
+  await runAuthGate();
 
   // ── Interceptar workflow ─────────────────────────────────
   if (workflow) {
@@ -611,19 +646,21 @@ async function main(): Promise<void> {
   const installedNames = getInstalledSkillNames(projectDir);
   const allSkills = collectSkills({ detected, isFrontend, combos, installedNames });
 
-  // Filter to only skills available in the local skills-registry directory
-  const registryDir = getRegistryDir();
-  const localSkillDirs = new Set(
-    existsSync(registryDir)
-      ? readdirSync(registryDir, { withFileTypes: true })
-          .filter((e) => e.isDirectory())
-          .map((e) => e.name)
-      : [],
-  );
-  const skills = allSkills.filter((s) => {
-    const { skillName } = parseSkillPath(s.skill);
-    return skillName.length > 0 && localSkillDirs.has(skillName);
-  });
+  // In dry-run mode show every detected skill; during actual install restrict to locally-available ones.
+  const validSkills = allSkills.filter((s) => parseSkillPath(s.skill).skillName.length > 0);
+  const skills = dryRun
+    ? validSkills
+    : (() => {
+        const registryDir = getRegistryDir();
+        const localSkillDirs = new Set(
+          existsSync(registryDir)
+            ? readdirSync(registryDir, { withFileTypes: true })
+                .filter((e: Dirent<string>) => e.isDirectory())
+                .map((e: Dirent<string>) => e.name)
+            : [],
+        );
+        return validSkills.filter((s) => localSkillDirs.has(parseSkillPath(s.skill).skillName));
+      })();
 
   const resolvedAgents = agents.length > 0 ? agents : detectAgents();
 
