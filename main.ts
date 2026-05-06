@@ -23,6 +23,7 @@ import {
 import type { InstallSecurityCheck } from "./installer.js";
 import {
     clearAutoskillsCache,
+    getCanonicalDir,
     getRegistryDir,
     installLocalSkillGlobal,
     installSkillGlobal,
@@ -611,21 +612,21 @@ async function showAvailableAgents(
     return;
   }
 
-  // Build SkillEntry list (with extra metadata for display)
-  const installedNames = getInstalledSkillNames(projectDir);
-
+  // Build SkillEntry list (with extra metadata for display).
+  // "installed" reflects GLOBAL installation (~/.agents/skills/<name>) so the
+  // selector starts with already-globally-installed agents pre-checked.
   interface AgentSkillEntry extends SkillEntry {
     agent: AgentEntry;
     tech: string; // first matching tech name for grouping
   }
 
   const entries: AgentSkillEntry[] = availableAgents.map((agent) => {
-    const { skillName } = parseSkillPath(agent.skillPath);
     const matchingTech = detected.find((t) => agent.requires.includes(t.id));
+    const globallyInstalled = existsSync(getCanonicalDir(agent.name, "skill"));
     return {
       skill: agent.skillPath,
       sources: [matchingTech?.name ?? agent.requires[0]],
-      installed: installedNames.has(skillName),
+      installed: globallyInstalled,
       agent,
       tech: matchingTech?.name ?? agent.requires[0],
     };
@@ -644,10 +645,9 @@ async function showAvailableAgents(
   // Non-interactive or dry-run — print list and return
   if (dryRun || !process.stdin.isTTY) {
     for (const entry of entries) {
-      const { skillName } = parseSkillPath(entry.skill);
       const installedTag = entry.installed ? dim(" (installed)") : "";
       const techSuffix = entry.tech ? `  ${dim(`← ${entry.tech}`)}` : "";
-      log(`  ${green("›")} ${bold(skillName)}  ${dim(entry.agent.hint)}${installedTag}${techSuffix}`);
+      log(`  ${green("›")} ${bold(entry.agent.name)}  ${dim(entry.agent.hint)}${installedTag}${techSuffix}`);
     }
     log();
     if (dryRun) {
@@ -660,9 +660,8 @@ async function showAvailableAgents(
   // Interactive selection
   const selected = await multiSelect(entries, {
     labelFn: (entry) => {
-      const { skillName } = parseSkillPath(entry.skill);
       const installedTag = entry.installed ? dim(" (installed)") : "";
-      return `${formatSkillLabel(entry.skill, { styled: true })}  ${dim(entry.agent.hint)}${installedTag}`;
+      return `${cyan(bold(entry.agent.name))}  ${dim(entry.agent.hint)}${installedTag}`;
     },
     hintFn: () => "",
     groupFn: (entry) => entry.tech,
@@ -704,10 +703,14 @@ async function showAvailableAgents(
   const registryDir = getRegistryDir();
 
   for (const entry of toInstall) {
-    const localSkillDir = join(registryDir, entry.agent.name);
+    // Derive local path from the skill's registry sub-path (e.g. "agents/create-view"
+    // maps to skills-registry/agents/create-view/).
+    const { skillName: registrySubPath } = parseSkillPath(entry.skill);
+    const localSkillDir = join(registryDir, ...registrySubPath.split("/"));
+
     const result = existsSync(localSkillDir)
       ? installLocalSkillGlobal(
-          entry.agent.name,
+          entry.agent.name,   // artifact name (e.g. "create-view"), not the sub-path
           localSkillDir,
           globalIDEs,
           localIDEs,
