@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-05-05T16:38:04.437Z",
+  "generatedAt": "2026-05-06T03:35:39.933Z",
   "reviewer": {
     "model": "gpt-5.4",
     "promptVersion": "1.0.0"
@@ -53,7 +53,7 @@
     "next-best-practices": {
       "source": "vercel-labs/next-skills",
       "skillPath": "vercel-labs/next-skills/next-best-practices",
-      "commitSha": "038954e07bfc313e97fa5f6ff7caf87226e4a782",
+      "commitSha": "34d5a7775ef1c49c0a656f810493c18af7948bbd",
       "files": [
         "SKILL.md",
         "async-patterns.md",
@@ -84,7 +84,7 @@
         "debug-tricks.md": "62617a7cb131a2111f9f033617404fadb3458d56aeb0643f75aa5b2e43abf192",
         "directives.md": "60b82ee24a8d43631da59beeec11f46ab25ce83c8000578f2222ecb6b6cadf4d",
         "error-handling.md": "30b4e825b625df01d4a7c441591ac46782aab4f913432e96f408153d5fa62098",
-        "file-conventions.md": "95eeb1c6e1c98571192662c8ba3cbf6a034f754596aba54a35077a50a5266de3",
+        "file-conventions.md": "0fed8bd429983c930c95eab3ab0254d4f2c128068fa290d758a057e3467252c3",
         "font.md": "cb1f8d43e8fbca39839056b4621724837858bdace13e73bf3faf69abca318a21",
         "functions.md": "39a8a418af501d7132d289f4b5dd6cae59d1bfa6fda941d502fc29bb0204e079",
         "hydration-error.md": "d4baec07ab818045e284c45dd24422685ac934a38ea325139651f664a94eff57",
@@ -98,54 +98,20 @@
         "self-hosting.md": "f59e9afa0ff4dcbe20374dff13517ccec3ac6a239ef6d02e0ee8863cf9fc7082",
         "suspense-boundaries.md": "63e2e7125b1a1a9d652dd301814ad7140f8ab3ad6726b2b53df76a89d9bc262a"
       },
-      "bundleHash": "22d9bba45864c4ae8acca9f6430290634343b7de91005d090e0ba201bdbbb5da",
+      "bundleHash": "851f1bfedeced2d484643b1eb6c3d05a8336544a96d389bbc9ddf952e2bc1efe",
       "review": {
         "status": "approved",
         "flags": [],
         "summary": "review skipped (--no-review)",
         "model": "gpt-5.4",
         "promptVersion": "1.0.0",
-        "reviewedAt": "2026-04-17T16:30:42.349Z"
-      }
-    },
-    "next-cache-components": {
-      "source": "vercel-labs/next-skills",
-      "skillPath": "vercel-labs/next-skills/next-cache-components",
-      "commitSha": "038954e07bfc313e97fa5f6ff7caf87226e4a782",
-      "files": [
-        "SKILL.md"
-      ],
-      "sha256": {
-        "SKILL.md": "92fc6ac94c5cabdcd13c7dc7aabd6a4d04921e6295dfc00dd9888e375fd1ff4c"
+        "reviewedAt": "2026-05-06T03:32:26.841Z"
       },
-      "bundleHash": "82a02f95879e9adf1a5a89f9ca2f51813e41ff3bab3c723cc8905f5a926bdd30",
-      "review": {
-        "status": "approved",
-        "flags": [],
+      "securityCheck": {
+        "status": "ok",
+        "findings": [],
         "summary": "review skipped (--no-review)",
-        "model": "gpt-5.4",
-        "promptVersion": "1.0.0",
-        "reviewedAt": "2026-04-17T16:30:42.350Z"
-      }
-    },
-    "next-upgrade": {
-      "source": "vercel-labs/next-skills",
-      "skillPath": "vercel-labs/next-skills/next-upgrade",
-      "commitSha": "038954e07bfc313e97fa5f6ff7caf87226e4a782",
-      "files": [
-        "SKILL.md"
-      ],
-      "sha256": {
-        "SKILL.md": "562f9834d7c55c37498e0787fe431061f4bb766cd1dd6bb52441790593c7e1a8"
-      },
-      "bundleHash": "265833561c41038b4a626585b46186cff859b7f9b2254ae6b88d01648790a7b4",
-      "review": {
-        "status": "approved",
-        "flags": [],
-        "summary": "review skipped (--no-review)",
-        "model": "gpt-5.4",
-        "promptVersion": "1.0.0",
-        "reviewedAt": "2026-04-17T16:30:42.350Z"
+        "checkedAt": "2026-05-06T03:32:26.841Z"
       }
     },
     "vue-best-practices": {
@@ -774,112 +740,6 @@
         "reviewedAt": "2026-04-17T16:30:46.540Z"
       }
     },
-    "angular-developer": {
-      "source": "angular/skills",
-      "skillPath": "angular/skills/angular-developer",
-      "commitSha": "fbda5f97952419caaefc972331c51e4b9d34ccfe",
-      "files": [
-        "SKILL.md",
-        "references/angular-animations.md",
-        "references/angular-aria.md",
-        "references/cli.md",
-        "references/component-harnesses.md",
-        "references/component-styling.md",
-        "references/components.md",
-        "references/creating-services.md",
-        "references/data-resolvers.md",
-        "references/define-routes.md",
-        "references/defining-providers.md",
-        "references/di-fundamentals.md",
-        "references/e2e-testing.md",
-        "references/effects.md",
-        "references/hierarchical-injectors.md",
-        "references/host-elements.md",
-        "references/injection-context.md",
-        "references/inputs.md",
-        "references/linked-signal.md",
-        "references/loading-strategies.md",
-        "references/mcp.md",
-        "references/migrations.md",
-        "references/navigate-to-routes.md",
-        "references/outputs.md",
-        "references/reactive-forms.md",
-        "references/rendering-strategies.md",
-        "references/resource.md",
-        "references/route-animations.md",
-        "references/route-guards.md",
-        "references/router-lifecycle.md",
-        "references/router-testing.md",
-        "references/show-routes-with-outlets.md",
-        "references/signal-forms.md",
-        "references/signals-overview.md",
-        "references/tailwind-css.md",
-        "references/template-driven-forms.md",
-        "references/testing-fundamentals.md"
-      ],
-      "sha256": {
-        "SKILL.md": "faf49f2c11fb19085ff4cdfc985adc8bf27e888b122e309da6fb00b17b7b1e5b",
-        "references/angular-animations.md": "0361278cabc4925807c8a93ebce717f1c8d52d553870ddd8634b1075b0395dbc",
-        "references/angular-aria.md": "258262515f0b9f11df3a291c80e6326432b14d3f67109a6ff1592f4c5761a98d",
-        "references/cli.md": "b7a5f9f85125659966fe087b623939fe2b89ea5d7cdf53265476adf1666e37d9",
-        "references/component-harnesses.md": "6b4f4958684308e76b4c57fb4b5f7efdf1cfc64001dd671fe40ae1ceab8e0943",
-        "references/component-styling.md": "de3351fdb72174361c6eee150940193f20d148afaceab0f22107758a3cb2d787",
-        "references/components.md": "dbfb520f2dddd017acb617369c45544374440fcb0b178d9648fab7ada0178468",
-        "references/creating-services.md": "9b0d8b6d627ec33e5957638049877eac655cd31444cd4afa440597e191e4cb94",
-        "references/data-resolvers.md": "0a6eb7ee89b29d1766941ed88881803b32870e705f2e438a7cae1c4e59ed8289",
-        "references/define-routes.md": "1288b38bad6cc9749e9d0fd35a294771ea2181dd712bfc2887d80e8b40fab7e6",
-        "references/defining-providers.md": "e654c23a080c642cf7031b5cc5de1101b8c75030c15256f7e3b81b0336953c6d",
-        "references/di-fundamentals.md": "87a0bd6addde006dde9fbc9bd89db0525ce37308beb4f6ca474ae4372b046109",
-        "references/e2e-testing.md": "c04a12aa5fb763b9b592aeb3b5dc68a1d6c707ccf94469095c193227d180d1e7",
-        "references/effects.md": "c06ad02460be7f57d024bb8e263a3390e72059815879bf6bcd0583e510a2b4ad",
-        "references/hierarchical-injectors.md": "05546d8043b93a2ab8deccdc2bd9c1704350883107701139e790ff8adb0f626a",
-        "references/host-elements.md": "b898bab74d518feba3c527dbf9694abe6d3ec7bfa44d81b34cff119016984080",
-        "references/injection-context.md": "bd0b1dad833696bf2aef2413426d445222aa29cd1cf5608c89147272ca34d9bb",
-        "references/inputs.md": "229a6e37f7006a6f3426cc2bc42baa67ecbbab77c343d141e44b10c1bb11de09",
-        "references/linked-signal.md": "4971692a36c4d470b5c8efec1a8106418ac28cdc33601e554ecff9dded95d289",
-        "references/loading-strategies.md": "fa82c48573532a7f5e3ccf7eaa50dc7a2db1f23a8599638d9c18e023dbd73e2f",
-        "references/mcp.md": "38a5187f1e2e7eb9b20cd1f12d44f74faadeb8f4c71664e7f06b0c2ee65489cd",
-        "references/migrations.md": "47983ed2683dc10f692d254cdca9c97fc13dec9ad099b759f5d31886f3cbaa7a",
-        "references/navigate-to-routes.md": "ea3c3d53b5db47b4f8d8b05124330e72bea92fc908d42c06aa7edb9e652b425e",
-        "references/outputs.md": "a191f8982d9ac6868023d56c887f362052c4fccc70a89adc8a6bc546f851e5dc",
-        "references/reactive-forms.md": "e71118562247c94141dfaca74efd246e38226bf26ffedbd7f3337f1866113283",
-        "references/rendering-strategies.md": "329aa9aa35c85dd2048c899f26025439d3b0244067dbb508e724d291fdad7c97",
-        "references/resource.md": "ff03e5f21219cb0cb6e8ea9fe3c47ead2308471a15a925cbcaf051473669c40c",
-        "references/route-animations.md": "eda1452f85ce05f3f28753cc77cd8c31c7a52515d7ccebbb35de0ec1e3beb374",
-        "references/route-guards.md": "491a93cb49fbcba04f7e8ffcd0f784fce7319ca3e2fe393c553f3d683a68424c",
-        "references/router-lifecycle.md": "4abc8cb8dfeb2e9f57dc11c117d5f4a5b756b39dc076910d9ced9da640effc2d",
-        "references/router-testing.md": "c1bebdf31808659161891783ac32cfe7300e4ba314ba93b1980c6f35a3e871a2",
-        "references/show-routes-with-outlets.md": "43a2ed62ea2edafa8569bf7045f20928110f8f844d5890bfb6a2f2dde45e754b",
-        "references/signal-forms.md": "bcd6ed1b975d28768fb450cc231635d9ba38cbbff6b485874a6571355f4ade7c",
-        "references/signals-overview.md": "da07c58fdea2ab7d82a28faf9f3d117ccb98ccaf3eec06f103b898f557791146",
-        "references/tailwind-css.md": "bdb952d0dd2d415560a796ecaf843cacff5ac20d8ef961eaaf75656fef9b9263",
-        "references/template-driven-forms.md": "52e83e576b0c6dc05f854e903c4cfda1222bcd55c50ddee07344d1e53d02c1df",
-        "references/testing-fundamentals.md": "c19aba15bd188bb6570fb593e0ca06d52ab86b9ef071611ad89aef1fbdd1a45e"
-      },
-      "bundleHash": "fc045be84cd51d105e4523a555510e3fd465a3e931f9b0049b0dfbdf68775eac",
-      "review": {
-        "status": "flagged",
-        "flags": [
-          "Broad/unconditional command execution guidance (`ng build`, `ng version`, `npm install`)",
-          "Potentially unsafe package installation guidance in skill instructions",
-          "Minor internal inconsistency/off-topic examples in references"
-        ],
-        "summary": "The skill is largely on-topic and safe, but it contains unconditional command execution and package installation instructions that should be human-reviewed.",
-        "model": "gpt-5.4",
-        "promptVersion": "1.0.0",
-        "reviewedAt": "2026-05-03T15:50:30.156Z"
-      },
-      "securityCheck": {
-        "status": "warning",
-        "findings": [
-          "Broad/unconditional command execution guidance (`ng build`, `ng version`, `npm install`)",
-          "Potentially unsafe package installation guidance in skill instructions",
-          "Minor internal inconsistency/off-topic examples in references"
-        ],
-        "summary": "The skill is largely on-topic and safe, but it contains unconditional command execution and package installation instructions that should be human-reviewed.",
-        "checkedAt": "2026-05-03T15:50:30.156Z"
-      }
-    },
     "astro": {
       "source": "astrolicious/agent-skills",
       "skillPath": "astrolicious/agent-skills/astro",
@@ -898,42 +758,6 @@
         "model": "gpt-5.4",
         "promptVersion": "1.0.0",
         "reviewedAt": "2026-04-17T16:31:06.011Z"
-      }
-    },
-    "tailwind-css-patterns": {
-      "source": "giuseppe-trisciuoglio/developer-kit",
-      "skillPath": "giuseppe-trisciuoglio/developer-kit/tailwind-css-patterns",
-      "commitSha": "618b176e027ac856389921662977d651bfcaf588",
-      "files": [
-        "SKILL.md",
-        "references/accessibility.md",
-        "references/animations.md",
-        "references/component-patterns.md",
-        "references/configuration.md",
-        "references/layout-patterns.md",
-        "references/performance.md",
-        "references/reference.md",
-        "references/responsive-design.md"
-      ],
-      "sha256": {
-        "SKILL.md": "63984406824ef934b457d34db25a5892b5375a82e31845159e6e97179c5acf4c",
-        "references/accessibility.md": "8dfd355daaebbd0e4b4e5d14bb4d075b544574109ac5728e40bce85c367e3484",
-        "references/animations.md": "f8536e0b5bd06ff61b3bc27381c28d6573dc798229d896270bec4bb60a4efdd8",
-        "references/component-patterns.md": "399bf0deb97654ce6c1a82a664ba073f4bd047e96bc1a81558553b45a4f3f266",
-        "references/configuration.md": "078e9a22304220c8d9eef8d2976f101fd3126b242cc68107373dfe0745a30cfb",
-        "references/layout-patterns.md": "7603d205c67299882bfd45b6da489683d7317af9b5460d9c5dc3c1345d586209",
-        "references/performance.md": "c654b77217211855faa525b2a8ad30d3f756a92ac9e6aeb0206555e83a703c20",
-        "references/reference.md": "318614d8f96720a7805338ecf4954b15a280662a99915b96582c0fd45e771103",
-        "references/responsive-design.md": "9a14a771383126750706fe5781da18622e44337feaee6756915e06cd1282b230"
-      },
-      "bundleHash": "8fd534b64b3f305ade80c207e2f9ba4338d5e409e355af9f724c36764b6709c1",
-      "review": {
-        "status": "approved",
-        "flags": [],
-        "summary": "review skipped (--no-review)",
-        "model": "gpt-5.4",
-        "promptVersion": "1.0.0",
-        "reviewedAt": "2026-04-17T16:31:10.375Z"
       }
     },
     "shadcn": {
@@ -10754,26 +10578,6 @@
         "reviewedAt": "2026-04-17T22:44:47.529Z"
       }
     },
-    "seo": {
-      "source": "addyosmani/web-quality-skills",
-      "skillPath": "addyosmani/web-quality-skills/seo",
-      "commitSha": "fed9617111260e19f4f54b72a2874a3f3de8ff94",
-      "files": [
-        "SKILL.md"
-      ],
-      "sha256": {
-        "SKILL.md": "f3e546112a3168515486c533d13156a1d4dcd9402f3d116730cef573a20e2804"
-      },
-      "bundleHash": "c184da724d1c61ad077f27418ea8e7e88fd54bcdf98165e18be7e4681cbd5e20",
-      "review": {
-        "status": "approved",
-        "flags": [],
-        "summary": "review skipped (--no-review)",
-        "model": "gpt-5.4",
-        "promptVersion": "1.0.0",
-        "reviewedAt": "2026-04-17T22:44:47.530Z"
-      }
-    },
     "react-best-practices": {
       "source": "vercel-labs/agent-skills",
       "skillPath": "vercel-labs/agent-skills/react-best-practices",
@@ -10944,52 +10748,6 @@
         "reviewedAt": "2026-04-18T04:01:40.264Z"
       }
     },
-    "composition-patterns": {
-      "source": "vercel-labs/agent-skills",
-      "skillPath": "vercel-labs/agent-skills/composition-patterns",
-      "commitSha": "ce3e64e468f8fa09a2d075d102771838061fdac0",
-      "files": [
-        "AGENTS.md",
-        "README.md",
-        "SKILL.md",
-        "metadata.json",
-        "rules/_sections.md",
-        "rules/_template.md",
-        "rules/architecture-avoid-boolean-props.md",
-        "rules/architecture-compound-components.md",
-        "rules/patterns-children-over-render-props.md",
-        "rules/patterns-explicit-variants.md",
-        "rules/react19-no-forwardref.md",
-        "rules/state-context-interface.md",
-        "rules/state-decouple-implementation.md",
-        "rules/state-lift-state.md"
-      ],
-      "sha256": {
-        "AGENTS.md": "89e3ddd58fcf99a53a50e25dfd21b8cde1be5f10b7df6bacd3dfa6796932f516",
-        "README.md": "85915a43a6f0b4efe525e3cf6398dd866166da2025837c4460468a24a940da94",
-        "SKILL.md": "e38e0eaa609316b10423a9a138ed95e35099accd3f735585295c8a8f165c28a3",
-        "metadata.json": "49262ed5cb4186f31ee980cf8d990be0170c51efed4908d0464a1cff9905bd05",
-        "rules/_sections.md": "a174213b87e6911e2b766995a2cbaf8d1534057076e82fb79fe3f0ecb38047df",
-        "rules/_template.md": "587f7d16b0660eb61fee4a4d3d7df2b3077d6835de170602c7d6e60bee559131",
-        "rules/architecture-avoid-boolean-props.md": "007555ebb020f4d552582a2c4db194db71a1fd33094012e5187bcfa4f8c392d5",
-        "rules/architecture-compound-components.md": "f246af13dc269b521cf20eb8ad99a0cb645beac381c8c9b117262c34612c8457",
-        "rules/patterns-children-over-render-props.md": "7c45a0d21b3c4126a32cba916ee31adeae195386ad1dbbe6634aedb7457aa0ad",
-        "rules/patterns-explicit-variants.md": "8c19e596e61807549d01ce8c6954c6358199f97a8511c0c02c625ec0efda8c0e",
-        "rules/react19-no-forwardref.md": "881830adb7534c4b2d70db426556646ad9837f5478f744f35641f635ada22227",
-        "rules/state-context-interface.md": "09e73afbf9285fa416679cc864a287b9e8b821d0969272ab784295386d8c9bc3",
-        "rules/state-decouple-implementation.md": "76a8c1eb29a70d8996ab3f71260345af2f7bc89deab815a421d6c87c6591a9c3",
-        "rules/state-lift-state.md": "74c54038a6c554c748fe31cec673b80861b5d920b7553cf78cdf10d18b4b759b"
-      },
-      "bundleHash": "c124390cc3441844903ada94cb5820b23d922f2d0ad34e01e029e410197c8a32",
-      "review": {
-        "status": "approved",
-        "flags": [],
-        "summary": "review skipped (--no-review)",
-        "model": "gpt-5.4",
-        "promptVersion": "1.0.0",
-        "reviewedAt": "2026-04-18T04:01:40.266Z"
-      }
-    },
     "reference-core": {
       "source": "angular/angular",
       "skillPath": "angular/angular/reference-core",
@@ -11050,26 +10808,6 @@
         "model": "gpt-5.4",
         "promptVersion": "1.0.0",
         "reviewedAt": "2026-04-18T04:02:05.190Z"
-      }
-    },
-    "adev-writing-guide": {
-      "source": "angular/angular",
-      "skillPath": "angular/angular/adev-writing-guide",
-      "commitSha": "4c9afb68a3447388f9ef1264888ea5dd6cb95dad",
-      "files": [
-        "SKILL.md"
-      ],
-      "sha256": {
-        "SKILL.md": "d979050f7dc20b0ba30d5aff07e8560b0f17e3e391d1b06d457b02a5556c3a84"
-      },
-      "bundleHash": "b8933a369cba1517ae21800f9f108cbdb3ca4e7b4eacd850103117ed51039795",
-      "review": {
-        "status": "approved",
-        "flags": [],
-        "summary": "The skill is a straightforward writing/style guide for Angular documentation and contains no prompt injection, secrets, suspicious links, or dangerous commands.",
-        "model": "gpt-5.4",
-        "promptVersion": "1.0.0",
-        "reviewedAt": "2026-04-30T08:51:36.675Z"
       }
     },
     "react-hook-form": {
@@ -11494,116 +11232,6 @@
         "model": "gpt-5.4",
         "promptVersion": "1.0.0",
         "reviewedAt": "2026-04-24T21:17:39.724Z"
-      }
-    },
-    "remotion": {
-      "source": "remotion-dev/skills",
-      "skillPath": "remotion-dev/skills/remotion",
-      "commitSha": "8587710e5b919def5bb0e79ce7f016e33fb3bf44",
-      "files": [
-        "SKILL.md",
-        "rules/3d.md",
-        "rules/assets/charts-bar-chart.tsx",
-        "rules/assets/text-animations-typewriter.tsx",
-        "rules/assets/text-animations-word-highlight.tsx",
-        "rules/audio-visualization.md",
-        "rules/audio.md",
-        "rules/calculate-metadata.md",
-        "rules/compositions.md",
-        "rules/display-captions.md",
-        "rules/ffmpeg.md",
-        "rules/get-audio-duration.md",
-        "rules/get-video-dimensions.md",
-        "rules/get-video-duration.md",
-        "rules/gifs.md",
-        "rules/google-fonts.md",
-        "rules/html-in-canvas.md",
-        "rules/images.md",
-        "rules/import-srt-captions.md",
-        "rules/light-leaks.md",
-        "rules/local-fonts.md",
-        "rules/lottie.md",
-        "rules/mapbox.md",
-        "rules/measuring-dom-nodes.md",
-        "rules/measuring-text.md",
-        "rules/parameters.md",
-        "rules/sequencing.md",
-        "rules/sfx.md",
-        "rules/silence-detection.md",
-        "rules/subtitles.md",
-        "rules/tailwind.md",
-        "rules/text-animations.md",
-        "rules/timing.md",
-        "rules/transcribe-captions.md",
-        "rules/transitions.md",
-        "rules/transparent-videos.md",
-        "rules/trimming.md",
-        "rules/videos.md",
-        "rules/voiceover.md"
-      ],
-      "sha256": {
-        "SKILL.md": "bc9de67a9aa04ff61fed86fc41409f2bdc0e078e3ab33263b7dcfcfeef7207d1",
-        "rules/3d.md": "42cef6d68fb4a266ab495d35df0c60e03672b0d85c043f9b567f6aa7ff00dd0d",
-        "rules/assets/charts-bar-chart.tsx": "6e5e219c596c8515336570a5bc89c233e32e695d5816dec88eb929e798eeea61",
-        "rules/assets/text-animations-typewriter.tsx": "92b5f47d6d18387a0aa008ce9dceefd30f673ae5879e16892bd4b4ea97f5dddb",
-        "rules/assets/text-animations-word-highlight.tsx": "30e707bbc90e3734fcdb0f9e869bdb9fbbaf8ded1d923951d616f5ba402ce03d",
-        "rules/audio-visualization.md": "0f4043de86639b6390e5ab888eaa66a24a10a8bd540f1443327cb88107eae1e9",
-        "rules/audio.md": "e931664ac23bc4acfa137d8b415702bb4860b4fbabd6caed0042c0902d3bec90",
-        "rules/calculate-metadata.md": "7d6217deed7425c6662e8d112b933be162a99a9f26a5c10b7c0b2ba62329a269",
-        "rules/compositions.md": "49fb12d1bb9e9fc68823625e83d43d5f36904593ad738a9d7e5ef97a1230627b",
-        "rules/display-captions.md": "20b8898a90536fa427a5a39571fc7deac7bde96c4c7bfdf413eee1ef4ef85530",
-        "rules/ffmpeg.md": "b67ff4e3ce01c48241ef92fa165398d427e9f676ae8e17d1ed19d5584bff5002",
-        "rules/get-audio-duration.md": "720a5346ae79555e933498995d5cb04d1bfbeeee7232436d8835c3ec17d46281",
-        "rules/get-video-dimensions.md": "ed1bb6e0ae742e4bfcb18e7c50af23fc782a9d699b90d367250437c7f6da7304",
-        "rules/get-video-duration.md": "ed594a0d73a5274483f21c30e612aba57089d5bbc5437041aa32d07a8e789fd9",
-        "rules/gifs.md": "db5d84bb8da4c52c133cdc9820a5b6995db94a548df5f9838efb8d1224065787",
-        "rules/google-fonts.md": "c0860213dfde60dd188a8b7cb1368e2e92fe960584b9ca6340c6cd555fcbd141",
-        "rules/html-in-canvas.md": "217bc4f52cfa2f4a8323a9dac3ba430acac28557707d7993e7e3aa4b092c5748",
-        "rules/images.md": "6a93c05858a842ea380e4a92491fa2ef6e205b184e0d22cd32ae3692f2e27333",
-        "rules/import-srt-captions.md": "ad89cc1834dcd63ff225593f699611a1a20b57eff4ed8e587f429b36516ec82c",
-        "rules/light-leaks.md": "17d2f136f7bf2f438274a0ade43df017c360ae31175d8367ce476415c222dfca",
-        "rules/local-fonts.md": "51597b528837c3fda45a61241ecb87124dd8b72c191bd06986bfc967bb380f8c",
-        "rules/lottie.md": "6dd0a845f5cea9c0f3d2465b5678a16076f5778ad1a628abbf387dba0b929cbb",
-        "rules/mapbox.md": "5a531e1c925c58c4aa019c33bf2b6c0412560af3359295ab080f33e063e01d61",
-        "rules/measuring-dom-nodes.md": "4017103b03f14a041ac433be78c521ec2e9961629fae419c8b196d349637585b",
-        "rules/measuring-text.md": "5cab1807b9ae9f5be3fc0e1cb0e0513a69451e31e32657d6a665573331db6807",
-        "rules/parameters.md": "9de38837a07dc406052dfbb759c58ca5298ca331d86d9aa0f4e177b339e288b5",
-        "rules/sequencing.md": "a3c448bfd99a5e7b6c838dab30c8aaf449d4f0732152203b65cf1b49977abb72",
-        "rules/sfx.md": "96fcc4f0973b5ed5cd9cd0d4d0479c642984cfacd8010fc7d6186c468296626b",
-        "rules/silence-detection.md": "ed95d46d078f3749b87ec3c6e25c1c5b0c8485fdcb41156d649266369748fdc2",
-        "rules/subtitles.md": "9f18ec4a9c88adf35d51b44aaf344442443fd687a4dc948366ebb683fc3ecd30",
-        "rules/tailwind.md": "6212ce72abe5eaee0eb41822b2cdf944b77ad9b082426909beb2da07151e1788",
-        "rules/text-animations.md": "40ac6b1bccf1c57d9edd46c74e847ec6e86fe775d3ef4fd14e1338f4a2606171",
-        "rules/timing.md": "d7df8f74a08a86ff019cbd3bf528dd9d9528ae1860be70d54b3334544d6b36a7",
-        "rules/transcribe-captions.md": "ad1a62af35fe176b37ac4d98f796451ca66bcc9983207a9710ec3eca6e847738",
-        "rules/transitions.md": "f6b0ca21322d68ab516345e8d57a2039c48654c98604b673913382c854e79d86",
-        "rules/transparent-videos.md": "394ccda476e084522d544471fee92d7c65672e2cbaf2201a785c3dd5c74f31a4",
-        "rules/trimming.md": "ae00948f6a903e384c7c312896adba9b50ed592f24a5a090699b7345849b36b9",
-        "rules/videos.md": "d9d3032a57f92c759daf0bd60b3282f6810ecc9958e9093a6b828de623b05328",
-        "rules/voiceover.md": "60340034cf422052007183d031171b3c88422dd3fe85f0d915283dd8ec5df3e8"
-      },
-      "bundleHash": "00b6ae6385bbf5d1f401c40dc301697f10ae39e0226283f3c1ba2583a1f421f6",
-      "review": {
-        "status": "flagged",
-        "flags": [
-          "embedded secret pattern in example (.env token assignment)",
-          "suspicious hidden character in Mapbox style URL",
-          "external links to third-party resources should be reviewed"
-        ],
-        "summary": "Mostly safe Remotion guidance, but it includes a token-in-.env example, a likely hidden Unicode character in a Mapbox URL, and several external URLs that warrant human review.",
-        "model": "gpt-5.4",
-        "promptVersion": "1.0.0",
-        "reviewedAt": "2026-05-03T15:50:32.048Z"
-      },
-      "securityCheck": {
-        "status": "warning",
-        "findings": [
-          "embedded secret pattern in example (.env token assignment)",
-          "suspicious hidden character in Mapbox style URL",
-          "external links to third-party resources should be reviewed"
-        ],
-        "summary": "Mostly safe Remotion guidance, but it includes a token-in-.env example, a likely hidden Unicode character in a Mapbox URL, and several external URLs that warrant human review.",
-        "checkedAt": "2026-05-03T15:50:32.048Z"
       }
     },
     "best-practices": {
@@ -12903,44 +12531,6 @@
         "reviewedAt": "2026-04-18T05:16:53.959Z"
       }
     },
-    "pr_review": {
-      "source": "angular/angular",
-      "skillPath": "angular/angular/pr_review",
-      "commitSha": "c84642ac16bf3588c071bbdcc684daa8d4e494b3",
-      "files": [
-        "SKILL.md",
-        "reference/router.md",
-        "scripts/determine_review_type.sh",
-        "scripts/get_pr_comments.sh",
-        "scripts/post_inline_comment.sh",
-        "scripts/reply_pr_comment.sh",
-        "scripts/submit_pr_review.sh"
-      ],
-      "sha256": {
-        "SKILL.md": "3daee0ee39f14160339670d83bbf384d8387c4019bd8baf766e2b5ca632d1d2f",
-        "reference/router.md": "ef8d31916a99f23be556a93b97e82c6f88c16623f8c2c75ee86522f7c6e85b61",
-        "scripts/determine_review_type.sh": "30c4ab8eb0d585b2aad40f8cc7d4beecbd367926c559f786cb2a6a243a4352d6",
-        "scripts/get_pr_comments.sh": "ed0bfc671973e59993b9eea79366930f9ac080215efd5b4bf6843f2f3b8913bd",
-        "scripts/post_inline_comment.sh": "a56005dba176c6043de684bde5de7b8520e053e2eaca81e9746ea95af7880d5c",
-        "scripts/reply_pr_comment.sh": "e4411b5712683bcad6eef794da4457471f15bd40826295d9950b958fdabbe0da",
-        "scripts/submit_pr_review.sh": "082f9a3795ccb5518c3e9c5990dc0724f57c3d6699e91e84af30ae6451228fc1"
-      },
-      "bundleHash": "7fe60167662a2a7df0f81af064d22298cffe1a13164f250f75cac8d71a452cfd",
-      "review": {
-        "status": "approved",
-        "flags": [],
-        "summary": "The skill content is on-topic PR review guidance and tool usage instructions without prompt injection, secrets, suspicious links, or destructive commands.",
-        "model": "gpt-5.4",
-        "promptVersion": "1.0.0",
-        "reviewedAt": "2026-05-03T15:46:50.340Z"
-      },
-      "securityCheck": {
-        "status": "ok",
-        "findings": [],
-        "summary": "The skill content is on-topic PR review guidance and tool usage instructions without prompt injection, secrets, suspicious links, or destructive commands.",
-        "checkedAt": "2026-05-03T15:46:50.340Z"
-      }
-    },
     "bash-defensive-patterns": {
       "source": "wshobson/agents",
       "skillPath": "wshobson/agents/bash-defensive-patterns",
@@ -13521,6 +13111,198 @@
         "model": "local",
         "promptVersion": "1.0.0",
         "reviewedAt": "2026-05-05T16:38:04.437Z"
+      }
+    },
+    "seo": {
+      "source": "addyosmani/web-quality-skills",
+      "skillPath": "addyosmani/web-quality-skills/seo",
+      "commitSha": "0b377cef290343ed3f652f66caa19927223d5451",
+      "files": [
+        "SKILL.md"
+      ],
+      "sha256": {
+        "SKILL.md": "f3e546112a3168515486c533d13156a1d4dcd9402f3d116730cef573a20e2804"
+      },
+      "bundleHash": "c184da724d1c61ad077f27418ea8e7e88fd54bcdf98165e18be7e4681cbd5e20",
+      "review": {
+        "status": "approved",
+        "flags": [],
+        "summary": "review skipped (--no-review)",
+        "model": "gpt-5.4",
+        "promptVersion": "1.0.0",
+        "reviewedAt": "2026-05-06T03:30:08.798Z"
+      },
+      "securityCheck": {
+        "status": "ok",
+        "findings": [],
+        "summary": "review skipped (--no-review)",
+        "checkedAt": "2026-05-06T03:30:08.798Z"
+      }
+    },
+    "angular-developer": {
+      "source": "angular/skills",
+      "skillPath": "angular/skills/angular-developer",
+      "commitSha": "666af8fcc9f8f732ae56d09ad39cdbdfa87d1db4",
+      "files": [
+        "SKILL.md",
+        "references/angular-animations.md",
+        "references/angular-aria.md",
+        "references/cli.md",
+        "references/component-harnesses.md",
+        "references/component-styling.md",
+        "references/components.md",
+        "references/creating-services.md",
+        "references/data-resolvers.md",
+        "references/define-routes.md",
+        "references/defining-providers.md",
+        "references/di-fundamentals.md",
+        "references/e2e-testing.md",
+        "references/effects.md",
+        "references/hierarchical-injectors.md",
+        "references/host-elements.md",
+        "references/injection-context.md",
+        "references/inputs.md",
+        "references/linked-signal.md",
+        "references/loading-strategies.md",
+        "references/mcp.md",
+        "references/migrations.md",
+        "references/navigate-to-routes.md",
+        "references/outputs.md",
+        "references/reactive-forms.md",
+        "references/rendering-strategies.md",
+        "references/resource.md",
+        "references/route-animations.md",
+        "references/route-guards.md",
+        "references/router-lifecycle.md",
+        "references/router-testing.md",
+        "references/show-routes-with-outlets.md",
+        "references/signal-forms.md",
+        "references/signals-overview.md",
+        "references/tailwind-css.md",
+        "references/template-driven-forms.md",
+        "references/testing-fundamentals.md"
+      ],
+      "sha256": {
+        "SKILL.md": "faf49f2c11fb19085ff4cdfc985adc8bf27e888b122e309da6fb00b17b7b1e5b",
+        "references/angular-animations.md": "0361278cabc4925807c8a93ebce717f1c8d52d553870ddd8634b1075b0395dbc",
+        "references/angular-aria.md": "258262515f0b9f11df3a291c80e6326432b14d3f67109a6ff1592f4c5761a98d",
+        "references/cli.md": "b7a5f9f85125659966fe087b623939fe2b89ea5d7cdf53265476adf1666e37d9",
+        "references/component-harnesses.md": "6b4f4958684308e76b4c57fb4b5f7efdf1cfc64001dd671fe40ae1ceab8e0943",
+        "references/component-styling.md": "de3351fdb72174361c6eee150940193f20d148afaceab0f22107758a3cb2d787",
+        "references/components.md": "dbfb520f2dddd017acb617369c45544374440fcb0b178d9648fab7ada0178468",
+        "references/creating-services.md": "9b0d8b6d627ec33e5957638049877eac655cd31444cd4afa440597e191e4cb94",
+        "references/data-resolvers.md": "0a6eb7ee89b29d1766941ed88881803b32870e705f2e438a7cae1c4e59ed8289",
+        "references/define-routes.md": "1288b38bad6cc9749e9d0fd35a294771ea2181dd712bfc2887d80e8b40fab7e6",
+        "references/defining-providers.md": "e654c23a080c642cf7031b5cc5de1101b8c75030c15256f7e3b81b0336953c6d",
+        "references/di-fundamentals.md": "87a0bd6addde006dde9fbc9bd89db0525ce37308beb4f6ca474ae4372b046109",
+        "references/e2e-testing.md": "c04a12aa5fb763b9b592aeb3b5dc68a1d6c707ccf94469095c193227d180d1e7",
+        "references/effects.md": "c06ad02460be7f57d024bb8e263a3390e72059815879bf6bcd0583e510a2b4ad",
+        "references/hierarchical-injectors.md": "05546d8043b93a2ab8deccdc2bd9c1704350883107701139e790ff8adb0f626a",
+        "references/host-elements.md": "b898bab74d518feba3c527dbf9694abe6d3ec7bfa44d81b34cff119016984080",
+        "references/injection-context.md": "bd0b1dad833696bf2aef2413426d445222aa29cd1cf5608c89147272ca34d9bb",
+        "references/inputs.md": "229a6e37f7006a6f3426cc2bc42baa67ecbbab77c343d141e44b10c1bb11de09",
+        "references/linked-signal.md": "4971692a36c4d470b5c8efec1a8106418ac28cdc33601e554ecff9dded95d289",
+        "references/loading-strategies.md": "fa82c48573532a7f5e3ccf7eaa50dc7a2db1f23a8599638d9c18e023dbd73e2f",
+        "references/mcp.md": "38a5187f1e2e7eb9b20cd1f12d44f74faadeb8f4c71664e7f06b0c2ee65489cd",
+        "references/migrations.md": "47983ed2683dc10f692d254cdca9c97fc13dec9ad099b759f5d31886f3cbaa7a",
+        "references/navigate-to-routes.md": "ea3c3d53b5db47b4f8d8b05124330e72bea92fc908d42c06aa7edb9e652b425e",
+        "references/outputs.md": "a191f8982d9ac6868023d56c887f362052c4fccc70a89adc8a6bc546f851e5dc",
+        "references/reactive-forms.md": "e71118562247c94141dfaca74efd246e38226bf26ffedbd7f3337f1866113283",
+        "references/rendering-strategies.md": "329aa9aa35c85dd2048c899f26025439d3b0244067dbb508e724d291fdad7c97",
+        "references/resource.md": "ff03e5f21219cb0cb6e8ea9fe3c47ead2308471a15a925cbcaf051473669c40c",
+        "references/route-animations.md": "eda1452f85ce05f3f28753cc77cd8c31c7a52515d7ccebbb35de0ec1e3beb374",
+        "references/route-guards.md": "491a93cb49fbcba04f7e8ffcd0f784fce7319ca3e2fe393c553f3d683a68424c",
+        "references/router-lifecycle.md": "4abc8cb8dfeb2e9f57dc11c117d5f4a5b756b39dc076910d9ced9da640effc2d",
+        "references/router-testing.md": "c1bebdf31808659161891783ac32cfe7300e4ba314ba93b1980c6f35a3e871a2",
+        "references/show-routes-with-outlets.md": "43a2ed62ea2edafa8569bf7045f20928110f8f844d5890bfb6a2f2dde45e754b",
+        "references/signal-forms.md": "bcd6ed1b975d28768fb450cc231635d9ba38cbbff6b485874a6571355f4ade7c",
+        "references/signals-overview.md": "da07c58fdea2ab7d82a28faf9f3d117ccb98ccaf3eec06f103b898f557791146",
+        "references/tailwind-css.md": "bdb952d0dd2d415560a796ecaf843cacff5ac20d8ef961eaaf75656fef9b9263",
+        "references/template-driven-forms.md": "52e83e576b0c6dc05f854e903c4cfda1222bcd55c50ddee07344d1e53d02c1df",
+        "references/testing-fundamentals.md": "c19aba15bd188bb6570fb593e0ca06d52ab86b9ef071611ad89aef1fbdd1a45e"
+      },
+      "bundleHash": "fc045be84cd51d105e4523a555510e3fd465a3e931f9b0049b0dfbdf68775eac",
+      "review": {
+        "status": "approved",
+        "flags": [],
+        "summary": "review skipped (--no-review)",
+        "model": "gpt-5.4",
+        "promptVersion": "1.0.0",
+        "reviewedAt": "2026-05-06T03:34:00.676Z"
+      },
+      "securityCheck": {
+        "status": "ok",
+        "findings": [],
+        "summary": "review skipped (--no-review)",
+        "checkedAt": "2026-05-06T03:34:00.676Z"
+      }
+    },
+    "adev-writing-guide": {
+      "source": "angular/angular",
+      "skillPath": "angular/angular/adev-writing-guide",
+      "commitSha": "188b0d5b5a5792b30025fce0b973eaaf5bf3854b",
+      "files": [
+        "SKILL.md"
+      ],
+      "sha256": {
+        "SKILL.md": "d979050f7dc20b0ba30d5aff07e8560b0f17e3e391d1b06d457b02a5556c3a84"
+      },
+      "bundleHash": "b8933a369cba1517ae21800f9f108cbdb3ca4e7b4eacd850103117ed51039795",
+      "review": {
+        "status": "approved",
+        "flags": [],
+        "summary": "review skipped (--no-review)",
+        "model": "gpt-5.4",
+        "promptVersion": "1.0.0",
+        "reviewedAt": "2026-05-06T03:35:36.841Z"
+      },
+      "securityCheck": {
+        "status": "ok",
+        "findings": [],
+        "summary": "review skipped (--no-review)",
+        "checkedAt": "2026-05-06T03:35:36.841Z"
+      }
+    },
+    "tailwind-css-patterns": {
+      "source": "giuseppe-trisciuoglio/developer-kit",
+      "skillPath": "giuseppe-trisciuoglio/developer-kit/tailwind-css-patterns",
+      "commitSha": "d9b2de50c6619d513f5b54207ed1d2a78b331645",
+      "files": [
+        "SKILL.md",
+        "references/accessibility.md",
+        "references/animations.md",
+        "references/component-patterns.md",
+        "references/configuration.md",
+        "references/layout-patterns.md",
+        "references/performance.md",
+        "references/reference.md",
+        "references/responsive-design.md"
+      ],
+      "sha256": {
+        "SKILL.md": "63984406824ef934b457d34db25a5892b5375a82e31845159e6e97179c5acf4c",
+        "references/accessibility.md": "8dfd355daaebbd0e4b4e5d14bb4d075b544574109ac5728e40bce85c367e3484",
+        "references/animations.md": "f8536e0b5bd06ff61b3bc27381c28d6573dc798229d896270bec4bb60a4efdd8",
+        "references/component-patterns.md": "399bf0deb97654ce6c1a82a664ba073f4bd047e96bc1a81558553b45a4f3f266",
+        "references/configuration.md": "078e9a22304220c8d9eef8d2976f101fd3126b242cc68107373dfe0745a30cfb",
+        "references/layout-patterns.md": "7603d205c67299882bfd45b6da489683d7317af9b5460d9c5dc3c1345d586209",
+        "references/performance.md": "c654b77217211855faa525b2a8ad30d3f756a92ac9e6aeb0206555e83a703c20",
+        "references/reference.md": "318614d8f96720a7805338ecf4954b15a280662a99915b96582c0fd45e771103",
+        "references/responsive-design.md": "9a14a771383126750706fe5781da18622e44337feaee6756915e06cd1282b230"
+      },
+      "bundleHash": "8fd534b64b3f305ade80c207e2f9ba4338d5e409e355af9f724c36764b6709c1",
+      "review": {
+        "status": "approved",
+        "flags": [],
+        "summary": "review skipped (--no-review)",
+        "model": "gpt-5.4",
+        "promptVersion": "1.0.0",
+        "reviewedAt": "2026-05-06T03:35:39.903Z"
+      },
+      "securityCheck": {
+        "status": "ok",
+        "findings": [],
+        "summary": "review skipped (--no-review)",
+        "checkedAt": "2026-05-06T03:35:39.903Z"
       }
     }
   }

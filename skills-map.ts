@@ -1369,6 +1369,7 @@ export const FRONTEND_PACKAGES: Set<string> = new Set([
 export const FRONTEND_BONUS_SKILLS: string[] = [
   "anthropics/skills/frontend-design",
   "addyosmani/web-quality-skills/accessibility",
+  "addyosmani/web-quality-skills/seo",
   "pragma/autoskills/web-design-guidelines",
   "pragma/autoskills/frontend-performance",
   "pragma/autoskills/frontend-security",

@@ -1,6 +1,6 @@
 {
   "name": "autoskills-pragma",
-  "version": "0.3.6",
+  "version": "0.4.0",
   "description": "Auto-detect and install the best AI agent skills for your project — Pragma fork of autoskills by midudev",
   "keywords": [
     "agent",
@@ -37,14 +37,14 @@
   "packageManager": "pnpm@10.33.3",
   "scripts": {
     "build": "tsc",
-    "test": "node --test 'tests/*.test.ts'",
-    "validate:registry": "node --experimental-strip-types --disable-warning=ExperimentalWarning scripts/validate-registry.mjs",
+    "test": "node --loader ./scripts/ts-loader.mjs --disable-warning=ExperimentalWarning --test 'tests/*.test.ts'",
+    "validate:registry": "node --loader ./scripts/ts-loader.mjs --disable-warning=ExperimentalWarning scripts/validate-registry.mjs",
     "prepublishOnly": "pnpm run validate:registry",
     "release": "node scripts/release.mjs",
-    "sync:skills": "node --experimental-strip-types --disable-warning=ExperimentalWarning scripts/sync-skills.mjs"
+    "sync:skills": "node --loader ./scripts/ts-loader.mjs --disable-warning=ExperimentalWarning scripts/sync-skills.mjs"
   },
   "devDependencies": {
-    "@types/node": "22.15.3",
+    "@types/node": "22.19.17",
     "typescript": "5.8.3"
   }
 }

@@ -29,7 +29,7 @@ import { SKILLS_MAP, COMBO_SKILLS_MAP, FRONTEND_BONUS_SKILLS } from "../skills-m
 import { parseSkillPath } from "../lib.ts";
 import { bold, cyan, dim, green, log, red, yellow } from "../colors.ts";
 
-process.loadEnvFile();
+try { process.loadEnvFile(); } catch { /* .env is optional */ }
 
 // ── Config ───────────────────────────────────────────────────
 

@@ -1,3 +1,4 @@
+import type { Dirent } from "node:fs";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 
@@ -24,7 +25,7 @@ function findFiles(dir: string, match: (name: string) => boolean, maxDepth = 4):
 
   function walk(current: string, depth: number): void {
     if (depth > maxDepth) return;
-    let entries: ReturnType<typeof readdirSync>;
+    let entries: Dirent<string>[];
     try { entries = readdirSync(current, { withFileTypes: true }); } catch { return; }
     for (const e of entries) {
       const full = join(current, e.name);

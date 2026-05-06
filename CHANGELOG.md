@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.4.0](https://github.com/bryanvillamilpragma/autoSkills-Pragma/releases/tag/v0.4.0) (2026-05-05)
+
+### ✨ Features
+
+- feat(auth): add Google OAuth 2.0 + PKCE authentication for Pragma users
+- feat(auth): add `AUTOSKILLS_SKIP_AUTH=1` env var to bypass auth in CI pipelines
+- feat(skills-map): add `seo` skill to `FRONTEND_BONUS_SKILLS` for frontend projects
+
+### 🐛 Bug Fixes
+
+- fix(cli): resolve agent/workflow collision in `parseArgs()` when using `-a <agent>` flag
+- fix(cli): dry-run now shows all detected skills, not only locally-synced ones
+- fix(sync-skills): replace `--experimental-strip-types` with `--loader ts-loader.mjs` to resolve `.js`→`.ts` import redirection on Node 24
+- fix(sync-skills): wrap `process.loadEnvFile()` in try/catch — `.env` is optional
+- fix(validate-registry): skip file-integrity checks for skills not yet synced locally (on-demand download model)
+- fix(types): replace `ReturnType<typeof readdirSync>` with explicit `Dirent<string>[]` in `context-collector.ts`
+
+### 📦 Other Changes
+
+- chore(node): add `scripts/ts-loader.mjs` ESM loader shim for Node 24 `.js`→`.ts` resolution
+- chore(tsconfig): add explicit `"types": ["node"]` and broaden include patterns
+- docs(agent): document `AUTOSKILLS_SKIP_AUTH` bypass variable and security considerations
+- chore(registry): re-sync `angular-developer`, `adev-writing-guide`, `tailwind-css-patterns`, `seo`, `next-best-practices` skills
+- chore(registry): remove orphaned manifest entries (`composition-patterns`, `next-cache-components`, `next-upgrade`, `pr_review`, `remotion`)
+
 ## [0.3.6](https://github.com/midudev/autoskills/releases/tag/v0.3.6) (2026-05-04)
 
 ### ✨ Features

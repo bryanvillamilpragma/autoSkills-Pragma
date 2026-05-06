@@ -52,6 +52,9 @@ function validateEntryFiles(skillName, entry, errors) {
     return;
   }
 
+  // Skills are downloaded on-demand; skip file checks for skills not yet synced locally.
+  if (!existsSync(join(REGISTRY_DIR, skillName))) return;
+
   const shaMap = entry.sha256 || {};
   const parts = [];
   for (const file of entry.files) {
