@@ -1,4 +1,5 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -22,12 +23,12 @@ import type { InstallSecurityCheck } from "./installer.js";
 import {
     clearAutoskillsCache,
     getRegistryDir,
-    installAll,
+    installSkillGlobal,
     loadRegistry,
     securityCheckForSkillPath,
 } from "./installer.js";
 import type { ComboSkill, SkillEntry, Technology } from "./lib.js";
-import { collectSkills, detectAgents, detectTechnologies, getInstalledSkillNames, parseSkillPath } from "./lib.js";
+import { collectSkills, detectInstalledIDEs, detectTechnologies, getInstalledSkillNames, parseSkillPath } from "./lib.js";
 import { formatTime, multiSelect, printBanner } from "./ui.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -508,39 +509,60 @@ async function selectSkills(skills: SkillEntry[], autoYes: boolean): Promise<Ski
 
 // ── Workflows ────────────────────────────────────────────────
 
-async function showAvailableAgents(): Promise<void> {
-  const projectDir = resolve(".");
-  const { detected } = detectTechnologies(projectDir);
-  const detectedIds = detected.map((t: Technology) => t.id);
-
-  const allWorkflows = [
-    {
-      name: "create-component",
-      description: "Crea un componente siguiendo las convenciones del stack",
-      requires: [["angular", "clean-architecture-uml"], ["angular"], ["react"]],
-    },
-  ];
-
-  const available = allWorkflows.filter((wf) =>
-    wf.requires.some((req) => req.every((r) => detectedIds.includes(r))),
-  );
+async function showInstalledWorkflows(): Promise<void> {
+  const home = homedir();
+  const claudeSkillsDir = join(home, ".claude", "skills");
 
   log("");
-  log(cyan("  ◆ Agentes disponibles para este proyecto"));
-  log(dim(`  Stack: ${detectedIds.join(", ") || "no detectado"}`));
+  log(cyan("  ◆ Workflows instalados"));
   log("");
 
-  if (available.length === 0) {
-    log(yellow("  No hay agentes disponibles para el stack detectado."));
-  } else {
-    const maxLen = Math.max(...available.map((a) => a.name.length));
-    for (const wf of available) {
-      const pad = " ".repeat(maxLen - wf.name.length + 2);
-      log(green("  ›") + " " + bold(wf.name) + pad + dim(wf.description));
-    }
+  if (!existsSync(claudeSkillsDir)) {
+    log(yellow("  No hay workflows instalados."));
+    log(dim("  Corre npx autoskills-pragma para instalar."));
     log("");
-    log(dim("  Usar: npx autoskills-pragma <nombre-agente>"));
+    return;
   }
+
+  const entries = readdirSync(claudeSkillsDir, { withFileTypes: true })
+    .filter((e) => e.isDirectory());
+
+  const workflows: Array<{ name: string; description: string }> = [];
+
+  for (const entry of entries) {
+    const skillMd = join(claudeSkillsDir, entry.name, "SKILL.md");
+    if (!existsSync(skillMd)) continue;
+
+    const content = readFileSync(skillMd, "utf-8");
+
+    // Solo mostrar los que tienen type: workflow en el frontmatter
+    if (!content.includes("type: workflow")) continue;
+
+    const descMatch = content.match(/^description:\s*(.+)$/m);
+    const description = descMatch?.[1]?.trim() ?? "";
+
+    workflows.push({ name: entry.name, description });
+  }
+
+  if (workflows.length === 0) {
+    log(dim("  No hay workflows instalados todavía."));
+    log(dim("  Instala skills para tu stack y los workflows se incluirán automáticamente."));
+    log("");
+    return;
+  }
+
+  const maxLen = Math.max(...workflows.map((w) => w.name.length));
+
+  for (const wf of workflows) {
+    const pad = " ".repeat(maxLen - wf.name.length + 2);
+    log(green("  ›") + " " + bold(wf.name) + pad + dim(wf.description.slice(0, 60)));
+  }
+
+  log("");
+  log(dim("  Úsalos en tu IDE:"));
+  log(dim("  Claude Code → /create-component, /unit-test-review"));
+  log(dim("  Kiro        → /create-component, /unit-test-review"));
+  log(dim("  Copilot     → /create-component, /unit-test-review"));
   log("");
 }
 
@@ -585,9 +607,9 @@ async function main(): Promise<void> {
     process.exit(0);
   }
 
-  // ── Listar agentes disponibles ───────────────────────────
+  // ── Listar workflows instalados ──────────────────────────
   if (listAgents) {
-    await showAvailableAgents();
+    await showInstalledWorkflows();
     process.exit(0);
   }
 
@@ -625,8 +647,6 @@ async function main(): Promise<void> {
     return skillName.length > 0 && localSkillDirs.has(skillName);
   });
 
-  const resolvedAgents = agents.length > 0 ? agents : detectAgents();
-
   if (skills.length === 0) {
     log(yellow("   No skills available for your stack yet."));
     log(dim("   Check https://autoskills.sh for the latest."));
@@ -640,7 +660,6 @@ async function main(): Promise<void> {
 
   if (dryRun) {
     printSkillsList(skills);
-    log(dim(`   Agents: ${resolvedAgents.join(", ")}`));
     log(dim("   --dry-run: nothing was installed."));
     log();
     process.exit(0);
@@ -650,39 +669,76 @@ async function main(): Promise<void> {
 
   log();
 
-  log(cyan("   ◆ ") + bold("Installing skills..."));
-  log(dim(`   Agents: ${resolvedAgents.join(", ")}`));
-  log();
+  const { global: globalIDEs, local: localIDEs } = detectInstalledIDEs(projectDir);
+  const allIDEsDetected = [...globalIDEs, ...localIDEs];
 
-  const startTime = Date.now();
-  const { installed, failed, errors, securityChecks } = await installAll(
-    selectedSkills,
-    resolvedAgents,
-    {
-      verbose,
-    },
-  );
-  const elapsed = Date.now() - startTime;
-  const claudeCleanup = cleanupClaudeMd(projectDir);
-
-  if (process.stdout.isTTY && !verbose) {
-    const up = selectedSkills.length + 2;
-    write(`\x1b[${up}A\r\x1b[K`);
-    log(green("   ◆ ") + bold("Done!"));
-    write(`\x1b[${selectedSkills.length + 1}B`);
+  if (allIDEsDetected.length === 0) {
+    log(yellow("  ⚠ No se detectó ningún IDE de IA instalado."));
+    log(dim("  Instala Claude Code, Cursor, Kiro, Windsurf o VS Code con Copilot."));
+    log();
+    process.exit(0);
   }
 
-  if (claudeCleanup.cleaned) {
-    if (claudeCleanup.deleted) {
-      log(dim("   Removed autoskills section from CLAUDE.md (file was empty, deleted)."));
-    } else {
-      log(dim("   Removed autoskills section from CLAUDE.md."));
-    }
+  let selectedIDEs: typeof allIDEsDetected;
+
+  if (allIDEsDetected.length === 1) {
+    selectedIDEs = allIDEsDetected;
+    log(cyan("  ◆ IDE detectado:") + " " + bold(allIDEsDetected[0].id));
+    log();
+  } else {
+    log(cyan("  ◆ IDEs detectados en tu sistema:"));
+    log();
+
+    selectedIDEs = await multiSelect(allIDEsDetected, {
+      labelFn: (ide) => `${ide.id}${ide.config.isGlobal ? "" : " (local — sin soporte global)"}`,
+      initialSelected: allIDEsDetected.map(() => autoYes),
+    });
     log();
   }
 
-  printSecurityChecks(securityChecks);
-  printSummary({ installed, failed, errors, elapsed, verbose });
+  const selectedGlobal = selectedIDEs.filter((ide) => ide.config.isGlobal);
+  const selectedLocal = selectedIDEs.filter((ide) => !ide.config.isGlobal);
+
+  log(cyan("  ◆ ") + bold("Instalando skills globalmente..."));
+  log(dim(`  IDEs: ${selectedIDEs.map((i) => i.id).join(", ")}`));
+  if (selectedLocal.length > 0) {
+    log(dim(`  Cursor instalará en este proyecto: ${projectDir}`));
+  }
+  log();
+
+  const startTime = Date.now();
+  let totalInstalled = 0;
+  let totalFailed = 0;
+
+  for (const skill of selectedSkills) {
+    const result = await installSkillGlobal(
+      skill.skill,
+      selectedGlobal,
+      selectedLocal,
+      { projectDir, verbose },
+    );
+    totalInstalled += result.installed.length;
+    totalFailed += result.failed.length;
+
+    if (verbose) {
+      for (const inst of result.installed) {
+        log(green("   ✔") + dim(` ${result.skillName} → ${inst.ide}`));
+      }
+      for (const fail of result.failed) {
+        log(red("   ✘") + dim(` ${result.skillName} → ${fail.ide}: ${fail.error}`));
+      }
+    }
+  }
+
+  const elapsed = Date.now() - startTime;
+  log(green("  ✔ ") + bold(`${totalInstalled} instalaciones completadas`) + dim(` en ${formatTime(elapsed)}`));
+  if (totalFailed > 0) {
+    log(yellow(`  ⚠ ${totalFailed} fallaron`));
+  }
+  log();
+  log(dim("  Tus IDEs ya tienen el contexto del proyecto."));
+  log(dim("  Abre cualquier proyecto y tu agente estará listo."));
+  log();
 }
 
 main().catch((err: Error) => {

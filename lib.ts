@@ -5,10 +5,12 @@ import { join, resolve } from "node:path";
 import type { ComboSkill, ConfigFileContentBlock, Technology } from "./skills-map.js";
 
 export {
-    AGENT_FOLDER_MAP, COMBO_SKILLS_MAP, FRONTEND_BONUS_SKILLS, FRONTEND_PACKAGES, SKILLS_MAP, WEB_FRONTEND_EXTENSIONS
+    AGENT_FOLDER_MAP, COMBO_SKILLS_MAP, FRONTEND_BONUS_SKILLS, FRONTEND_PACKAGES, SKILLS_MAP, WEB_FRONTEND_EXTENSIONS,
+    IDE_MAP,
 } from "./skills-map.js";
 
 export type { ComboSkill, ConfigFileContentBlock, Technology } from "./skills-map.js";
+export type { ArtifactType, IDEArtifactConfig, IDEConfig } from "./skills-map.js";
 
 import {
     AGENT_FOLDER_MAP,
@@ -17,7 +19,9 @@ import {
     FRONTEND_PACKAGES,
     SKILLS_MAP,
     WEB_FRONTEND_EXTENSIONS,
+    IDE_MAP,
 } from "./skills-map.js";
+import type { IDEConfig } from "./skills-map.js";
 
 // ── Internal Constants ───────────────────────────────────────
 
@@ -600,6 +604,39 @@ export function detectAgents(home: string = homedir()): string[] {
   return agents;
 }
 
+// ── IDE Detection ────────────────────────────────────────────
+
+export interface DetectedIDE {
+  id: string;
+  config: IDEConfig;
+  basePath: string;   // home del usuario si isGlobal, projectDir si local
+}
+
+export function detectInstalledIDEs(projectDir: string): {
+  global: DetectedIDE[];
+  local: DetectedIDE[];
+} {
+  const home = homedir();
+  const global: DetectedIDE[] = [];
+  const local: DetectedIDE[] = [];
+
+  for (const [id, config] of Object.entries(IDE_MAP)) {
+    const basePath = config.isGlobal ? home : projectDir;
+    const detectionFull = join(basePath, config.detectionPath);
+
+    if (existsSync(detectionFull)) {
+      const detected: DetectedIDE = { id, config, basePath };
+      if (config.isGlobal) {
+        global.push(detected);
+      } else {
+        local.push(detected);
+      }
+    }
+  }
+
+  return { global, local };
+}
+
 // ── Helpers ──────────────────────────────────────────────────
 
 export interface ParsedSkillPath {
@@ -645,6 +682,38 @@ export interface SkillEntry {
   skill: string;
   sources: string[];
   installed: boolean;
+}
+
+export function collectWorkflows(params: {
+  detected: Technology[];
+  installedNames: Set<string> | string[] | null;
+}): SkillEntry[] {
+  const { detected, installedNames } = params;
+  const installedSet =
+    installedNames instanceof Set
+      ? installedNames
+      : installedNames
+      ? new Set(installedNames)
+      : null;
+  const seen = new Set<string>();
+  const result: SkillEntry[] = [];
+
+  for (const tech of detected) {
+    if (!tech.workflows) continue;
+    for (const workflowPath of tech.workflows) {
+      const { skillName } = parseSkillPath(workflowPath);
+      if (seen.has(skillName)) continue;
+      if (installedSet?.has(skillName)) continue;
+      seen.add(skillName);
+      result.push({
+        skill: workflowPath,
+        sources: [tech.name],
+        installed: false,
+      });
+    }
+  }
+
+  return result;
 }
 
 interface CollectSkillsOptions {

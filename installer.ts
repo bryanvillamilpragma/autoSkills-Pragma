@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import {
+    appendFileSync,
     copyFileSync,
     existsSync,
     mkdirSync,
@@ -15,9 +16,10 @@ import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { HIDE_CURSOR, SHOW_CURSOR, SPINNER, cyan, dim, green, log, red, write } from "./colors.js";
-import type { SkillEntry } from "./lib.js";
+import type { DetectedIDE, SkillEntry } from "./lib.js";
 import { parseSkillPath } from "./lib.js";
 import { AGENT_FOLDER_MAP } from "./skills-map.js";
+import type { ArtifactType } from "./skills-map.js";
 
 // ── Registry ─────────────────────────────────────────────────
 
@@ -433,6 +435,114 @@ function copyDir(src: string, dest: string): void {
       copyFileSync(s, d);
     }
   }
+}
+
+// ── Global IDE distribution ──────────────────────────────────
+
+export function getCanonicalDir(artifactName: string, type: ArtifactType): string {
+  return join(homedir(), ".agents", type + "s", artifactName);
+}
+
+export function writeArtifactForIDE(
+  artifactName: string,
+  canonicalDir: string,
+  artifactType: ArtifactType,
+  ide: DetectedIDE,
+): string {
+  const artifactConfig = ide.config.artifacts[artifactType];
+  const installBase = join(ide.basePath, artifactConfig.folder);
+  mkdirSync(installBase, { recursive: true });
+
+  if (artifactConfig.format === "dir") {
+    const destDir = join(installBase, artifactName);
+    rmSync(destDir, { recursive: true, force: true });
+    copyDir(canonicalDir, destDir);
+    return destDir;
+  } else if (artifactConfig.format === "append") {
+    const srcFile = join(canonicalDir, "SKILL.md");
+    const destFile = join(installBase, artifactConfig.fileExt);
+    if (existsSync(srcFile)) {
+      const content = readFileSync(srcFile, "utf-8");
+      appendFileSync(destFile, `\n\n<!-- ${artifactName} -->\n` + content, "utf-8");
+    }
+    return destFile;
+  } else {
+    // format === "file"
+    const mainFile = join(canonicalDir, "SKILL.md");
+    const altFile = join(canonicalDir, `${artifactName}.md`);
+    const srcFile = existsSync(mainFile) ? mainFile : altFile;
+    const destFile = join(installBase, `${artifactName}${artifactConfig.fileExt}`);
+    if (existsSync(srcFile)) {
+      const content = readFileSync(srcFile, "utf-8");
+      writeFileSync(destFile, content, "utf-8");
+    }
+    return destFile;
+  }
+}
+
+export interface GlobalInstallResult {
+  success: boolean;
+  skillName: string;
+  installed: Array<{ ide: string; path: string }>;
+  failed: Array<{ ide: string; error: string }>;
+  error?: string;
+}
+
+export async function installSkillGlobal(
+  skillPath: string,
+  globalIDEs: DetectedIDE[],
+  localIDEs: DetectedIDE[],
+  opts: InstallOptions = {},
+  artifactType: ArtifactType = "skill",
+): Promise<GlobalInstallResult> {
+  const { skillName } = parseSkillPath(skillPath);
+  if (!skillName) {
+    return { success: false, skillName: "", installed: [], failed: [], error: `invalid skill path: ${skillPath}` };
+  }
+
+  const registry = loadRegistry();
+  if (!registry) {
+    return { success: false, skillName, installed: [], failed: [], error: "skills-registry index not found." };
+  }
+
+  const entry = registry.skills[skillName];
+  if (!entry) {
+    return { success: false, skillName, installed: [], failed: [], error: `skill '${skillName}' not found in registry.` };
+  }
+
+  const canonicalDir = getCanonicalDir(skillName, artifactType);
+
+  try {
+    const alreadyOk = verifyRegistryEntry(skillName, entry, join(homedir(), ".agents", artifactType + "s"));
+    if (!alreadyOk.ok) {
+      if (
+        !copyRegistryEntryFromLocal(skillName, entry, canonicalDir, opts) &&
+        !copyRegistryEntryFromCache(skillName, entry, canonicalDir, opts)
+      ) {
+        const cachedSkillDir = await downloadRegistryEntryToCache(skillName, entry, opts);
+        rmSync(canonicalDir, { recursive: true, force: true });
+        copyDir(cachedSkillDir, canonicalDir);
+      }
+    }
+  } catch (err) {
+    return { success: false, skillName, installed: [], failed: [], error: `download failed: ${(err as Error).message}` };
+  }
+
+  const installed: Array<{ ide: string; path: string }> = [];
+  const failed: Array<{ ide: string; error: string }> = [];
+
+  for (const ide of [...globalIDEs, ...localIDEs]) {
+    try {
+      const path = writeArtifactForIDE(skillName, canonicalDir, artifactType, ide);
+      installed.push({ ide: ide.id, path });
+    } catch (err) {
+      const error = (err as Error).message;
+      opts.onTrace?.(`failed writing to ${ide.id}: ${error}`);
+      failed.push({ ide: ide.id, error });
+    }
+  }
+
+  return { success: failed.length === 0, skillName, installed, failed };
 }
 
 export function agentFolderFor(agent: string): string | null {

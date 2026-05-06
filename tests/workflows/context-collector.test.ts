@@ -118,7 +118,7 @@ describe("findSimilarComponents", () => {
     mkdirSync(pagesDir, { recursive: true });
     writeFileSync(
       join(pagesDir, "user-list.component.ts"),
-      "@Component({}) export class UserListComponent implements OnInit { ngOnInit() {} }",
+      "@Component({ selector: 'app-user-list', standalone: true, imports: [], templateUrl: './user-list.component.html' })\nexport class UserListComponent implements OnInit {\n  ngOnInit(): void {}\n}",
     );
 
     const result = findSimilarComponents(tmp.path, true);
