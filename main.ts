@@ -612,21 +612,35 @@ async function showAvailableAgents(
     return;
   }
 
-  // Build SkillEntry list (with extra metadata for display).
-  // "installed" reflects GLOBAL installation (~/.agents/agents/<name>) so the
-  // selector starts with already-globally-installed agents pre-checked.
+  // Detect IDEs early so we can check if agent files actually exist in each IDE folder.
+  const { global: globalIDEs, local: localIDEs } = detectInstalledIDEs(projectDir);
+  const allDetectedIDEs = [...globalIDEs, ...localIDEs];
+
+  // Returns true only if the agent file/dir is present in AT LEAST ONE detected IDE folder.
+  // This is the source of truth — not the canonical staging dir (~/.agents/agents/).
+  function isAgentInstalledInIDEs(agentName: string): boolean {
+    for (const ide of allDetectedIDEs) {
+      const cfg = ide.config.artifacts["agent"];
+      const dest =
+        cfg.format === "dir"
+          ? join(ide.basePath, cfg.folder, agentName)
+          : join(ide.basePath, cfg.folder, agentName + cfg.fileExt);
+      if (existsSync(dest)) return true;
+    }
+    return false;
+  }
+
   interface AgentSkillEntry extends SkillEntry {
     agent: AgentEntry;
-    tech: string; // first matching tech name for grouping
+    tech: string;
   }
 
   const entries: AgentSkillEntry[] = availableAgents.map((agent) => {
     const matchingTech = detected.find((t) => agent.requires.includes(t.id));
-    const globallyInstalled = existsSync(getCanonicalDir(agent.name, "agent"));
     return {
       skill: agent.skillPath,
       sources: [matchingTech?.name ?? agent.requires[0]],
-      installed: globallyInstalled,
+      installed: isAgentInstalledInIDEs(agent.name),
       agent,
       tech: matchingTech?.name ?? agent.requires[0],
     };
@@ -675,18 +689,12 @@ async function showAvailableAgents(
     return;
   }
 
-  const toInstall = selected.filter((e) => !e.installed);
+  // Install everything the user selected (including re-installs).
+  // Already-installed ones are pre-deselected in the UI; if the user
+  // explicitly re-selects them we still install.
+  const toInstall = selected;
 
-  if (toInstall.length === 0) {
-    log(dim("  All selected agents are already installed."));
-    log();
-    return;
-  }
-
-  const { global: globalIDEs, local: localIDEs } = detectInstalledIDEs(projectDir);
-  const allIDEs = [...globalIDEs, ...localIDEs];
-
-  if (allIDEs.length === 0) {
+  if (allDetectedIDEs.length === 0) {
     log(yellow("  ⚠ No se detectó ningún IDE de IA instalado."));
     log(dim("  Instala Claude Code, Cursor, Kiro, Windsurf o VS Code con Copilot."));
     log();
@@ -695,7 +703,7 @@ async function showAvailableAgents(
 
   log();
   log(cyan("  ◆ ") + bold("Installing agents globally..."));
-  log(dim(`  IDEs: ${allIDEs.map((i) => i.id).join(", ")}`));
+  log(dim(`  IDEs: ${allDetectedIDEs.map((i) => i.id).join(", ")}`));
   log();
 
   let totalInstalled = 0;
