@@ -13508,6 +13508,25 @@
         "SKILL.md": "2b5f7b968ca280a6603ef392a45917c05f8daf56e2001ada3614a8332bf6d360"
       },
       "bundleHash": "b7aaf1319a900b2a74bfacf72b9a43cc6fef75bf593dab368df4d72b7692a037"
+    },
+    "workflows/microfrontend-architect": {
+      "commitSha": "local",
+      "files": [
+        "SKILL.md"
+      ],
+      "review": {
+        "status": "approved",
+        "flags": [],
+        "summary": "",
+        "model": "local",
+        "promptVersion": "1.0.0",
+        "reviewedAt": "2026-05-06T00:00:00.000Z"
+      },
+      "source": "pragma/autoskills/workflows/microfrontend-architect",
+      "sha256": {
+        "SKILL.md": "15141dc18bb5fb480b035b5d70ed0673d909c979d07fffab4c1d971e1b548120"
+      },
+      "bundleHash": "15141dc18bb5fb480b035b5d70ed0673d909c979d07fffab4c1d971e1b548120"
     }
   }
 }

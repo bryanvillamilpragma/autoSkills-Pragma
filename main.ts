@@ -603,6 +603,13 @@ const AGENTS_REGISTRY: AgentEntry[] = [
     skillPath: "pragma/autoskills/workflows/security-auditor",
     hint: "OWASP Top 10, XSS, tokens y secrets en código",
   },
+  {
+    name: "microfrontend-architect",
+    description: "Diseña e implementa arquitecturas microfrontend con Module Federation",
+    requires: ["react", "angular", "nextjs"],
+    skillPath: "pragma/autoskills/workflows/microfrontend-architect",
+    hint: "Shell + remotes, shared deps, routing y comunicación entre MFEs",
+  },
 ];
 
 // ── Agents screen ─────────────────────────────────────────────
@@ -964,8 +971,9 @@ async function main(): Promise<void> {
       selectedLocal,
       { projectDir, verbose },
     );
-    totalInstalled += result.installed.length;
-    totalFailed += result.failed.length;
+    // Count per skill (not per IDE copy) — one skill installed in 4 IDEs = 1, not 4
+    if (result.installed.length > 0) totalInstalled++;
+    else if (result.failed.length > 0) totalFailed++;
 
     if (verbose) {
       for (const inst of result.installed) {
@@ -978,9 +986,14 @@ async function main(): Promise<void> {
   }
 
   const elapsed = Date.now() - startTime;
-  log(green("  ✔ ") + bold(`${totalInstalled} instalaciones completadas`) + dim(` en ${formatTime(elapsed)}`));
+  const ideCount = selectedIDEs.length;
+  log(
+    green("  ✔ ") +
+    bold(`${totalInstalled} skill${totalInstalled !== 1 ? "s" : ""} installed`) +
+    dim(` across ${ideCount} IDE${ideCount !== 1 ? "s" : ""} in ${formatTime(elapsed)}`),
+  );
   if (totalFailed > 0) {
-    log(yellow(`  ⚠ ${totalFailed} fallaron`));
+    log(yellow(`  ⚠ ${totalFailed} failed`));
   }
   log();
   log(dim("  Tus IDEs ya tienen el contexto del proyecto."));
