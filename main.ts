@@ -613,7 +613,7 @@ async function showAvailableAgents(
   }
 
   // Build SkillEntry list (with extra metadata for display).
-  // "installed" reflects GLOBAL installation (~/.agents/skills/<name>) so the
+  // "installed" reflects GLOBAL installation (~/.agents/agents/<name>) so the
   // selector starts with already-globally-installed agents pre-checked.
   interface AgentSkillEntry extends SkillEntry {
     agent: AgentEntry;
@@ -622,7 +622,7 @@ async function showAvailableAgents(
 
   const entries: AgentSkillEntry[] = availableAgents.map((agent) => {
     const matchingTech = detected.find((t) => agent.requires.includes(t.id));
-    const globallyInstalled = existsSync(getCanonicalDir(agent.name, "skill"));
+    const globallyInstalled = existsSync(getCanonicalDir(agent.name, "agent"));
     return {
       skill: agent.skillPath,
       sources: [matchingTech?.name ?? agent.requires[0]],
@@ -715,12 +715,14 @@ async function showAvailableAgents(
           globalIDEs,
           localIDEs,
           { projectDir, verbose },
+          "agent",            // write to IDE agent/workflow folders, not skills
         )
       : await installSkillGlobal(
           entry.skill,
           globalIDEs,
           localIDEs,
           { projectDir, verbose },
+          "agent",            // write to IDE agent/workflow folders, not skills
         );
 
     totalInstalled += result.installed.length;
