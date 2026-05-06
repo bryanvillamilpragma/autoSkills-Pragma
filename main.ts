@@ -706,35 +706,37 @@ async function showAvailableAgents(
   log(dim(`  IDEs: ${allDetectedIDEs.map((i) => i.id).join(", ")}`));
   log();
 
-  let totalInstalled = 0;
-  let totalFailed = 0;
+  let agentsInstalled = 0;
+  let agentsFailed = 0;
   const registryDir = getRegistryDir();
 
   for (const entry of toInstall) {
-    // Derive local path from the skill's registry sub-path (e.g. "agents/create-view"
-    // maps to skills-registry/agents/create-view/).
     const { skillName: registrySubPath } = parseSkillPath(entry.skill);
     const localSkillDir = join(registryDir, ...registrySubPath.split("/"));
 
     const result = existsSync(localSkillDir)
       ? installLocalSkillGlobal(
-          entry.agent.name,   // artifact name (e.g. "create-view"), not the sub-path
+          entry.agent.name,
           localSkillDir,
           globalIDEs,
           localIDEs,
           { projectDir, verbose },
-          "agent",            // write to IDE agent/workflow folders, not skills
+          "agent",
         )
       : await installSkillGlobal(
           entry.skill,
           globalIDEs,
           localIDEs,
           { projectDir, verbose },
-          "agent",            // write to IDE agent/workflow folders, not skills
+          "agent",
         );
 
-    totalInstalled += result.installed.length;
-    totalFailed += result.failed.length;
+    // Count agents (not IDE copies): one agent = one unit regardless of how many IDEs
+    if (result.installed.length > 0) {
+      agentsInstalled++;
+    } else if (result.error || result.failed.length > 0) {
+      agentsFailed++;
+    }
 
     if (verbose || result.error) {
       if (result.error) {
@@ -749,9 +751,9 @@ async function showAvailableAgents(
     }
   }
 
-  log(green(`  ✔ ${totalInstalled} installation${totalInstalled !== 1 ? "s" : ""} completed`));
-  if (totalFailed > 0) {
-    log(yellow(`  ⚠ ${totalFailed} failed`));
+  log(green(`  ✔ ${agentsInstalled} agent${agentsInstalled !== 1 ? "s" : ""} installed`));
+  if (agentsFailed > 0) {
+    log(yellow(`  ⚠ ${agentsFailed} failed`));
   }
   log();
   log(green("  ✨ ") + bold("Agents installed globally! Now go to your IDE and ask your agent to do things."));
