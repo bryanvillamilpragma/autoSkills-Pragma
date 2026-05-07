@@ -112,10 +112,29 @@ lib.ts detectTechnologies() → escanea proyecto → retorna tecnologías + comb
        ↓
 lib.ts collectSkills() → mapea tecnologías a skills disponibles
        ↓
-installer.ts installSkill() → verifica integridad (SHA-256) → copia a .agents/skills/
+installer.ts installSkillGlobal() → verifica integridad (SHA-256) → copia a ~/.agents/skills/
        ↓
-Symlinks a carpetas de cada agente (.cursor/skills/, .claude/skills/, etc.)
+writeArtifactForIDE() → distribuye a cada IDE según su formato:
+  • format "dir"  → copia la carpeta completa (Claude, Kiro, Copilot/Cursor/Windsurf comparten ~/.agents/skills/)
+  • format "file" → extrae SKILL.md como archivo plano (agents, rules, prompts)
+  • format "append" → agrega contenido a un archivo existente (copilot-instructions.md)
 ```
+
+### IDE Map (rutas de instalación)
+
+Todos los IDEs son `isGlobal: true` (se detectan en `$HOME`):
+
+| IDE        | detectionPath        | skills              | agents                              | rules                    | prompts                  |
+| ---------- | -------------------- | ------------------- | ----------------------------------- | ------------------------ | ------------------------ |
+| claude-code| `.claude`            | `.claude/skills`    | `.claude/agents`                    | `.claude/rules`          | `.claude/prompts`        |
+| kiro       | `.kiro`              | `.kiro/skills`      | `.kiro/agents`                      | `.kiro/rules`            | `.kiro/prompts`          |
+| copilot    | `.vscode`            | `.agents/skills`    | `.agents/agents`                    | `.copilot` (append)      | `.copilot/prompts`       |
+| windsurf   | `.codeium/windsurf`  | `.agents/skills`    | `.codeium/windsurf/global_workflows`| `.codeium/windsurf/rules`| `.codeium/windsurf/prompts`|
+| cursor     | `.cursor`            | `.agents/skills`    | `.agents/agents`                    | `.cursor/rules`          | `.cursor/prompts`        |
+
+> Copilot, Windsurf y Cursor comparten `~/.agents/skills/` para evitar duplicación de archivos.
+> Los agents se instalan como archivos `.md` planos en la carpeta target. El staging temporal
+> vive en `~/.agents/.cache/agents/` y no contamina la carpeta final.
 
 ### Registry y seguridad
 

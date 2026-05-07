@@ -119,19 +119,26 @@ describe("IDE_MAP — estructura", () => {
     strictEqual(IDE_MAP["kiro"].artifacts.skill.format, "dir");
   });
 
-  it("windsurf agent instala en .windsurf/workflows", async () => {
+  it("windsurf agent instala en .codeium/windsurf/global_workflows", async () => {
     const { IDE_MAP } = await import("../skills-map.js");
-    strictEqual(IDE_MAP["windsurf"].artifacts.agent.folder, ".windsurf/workflows");
+    strictEqual(IDE_MAP["windsurf"].artifacts.agent.folder, ".codeium/windsurf/global_workflows");
   });
 
-  it("cursor es isGlobal: false", async () => {
+  it("windsurf y cursor skills comparten .agents/skills", async () => {
     const { IDE_MAP } = await import("../skills-map.js");
-    strictEqual(IDE_MAP["cursor"].isGlobal, false);
+    strictEqual(IDE_MAP["windsurf"].artifacts.skill.folder, ".agents/skills");
+    strictEqual(IDE_MAP["cursor"].artifacts.skill.folder, ".agents/skills");
+    strictEqual(IDE_MAP["copilot"].artifacts.skill.folder, ".agents/skills");
   });
 
-  it("los 4 globales son isGlobal: true", async () => {
+  it("cursor es isGlobal: true", async () => {
     const { IDE_MAP } = await import("../skills-map.js");
-    for (const id of ["claude-code", "kiro", "copilot", "windsurf"]) {
+    strictEqual(IDE_MAP["cursor"].isGlobal, true);
+  });
+
+  it("los 5 IDEs son isGlobal: true", async () => {
+    const { IDE_MAP } = await import("../skills-map.js");
+    for (const id of ["claude-code", "kiro", "copilot", "windsurf", "cursor"]) {
       strictEqual(IDE_MAP[id].isGlobal, true, `${id} debe ser isGlobal`);
     }
   });

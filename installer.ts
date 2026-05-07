@@ -440,7 +440,14 @@ function copyDir(src: string, dest: string): void {
 // ── Global IDE distribution ──────────────────────────────────
 
 export function getCanonicalDir(artifactName: string, type: ArtifactType): string {
-  return join(homedir(), ".agents", type + "s", artifactName);
+  if (type === "agent") {
+    // Agents use a hidden cache dir because the final output is a flat .md file
+    // inside ~/.agents/agents/. Without this, the staging folder (with SKILL.md inside)
+    // would persist as a residual directory next to the generated .md files.
+    return join(homedir(), ".agents", ".cache", "agents", artifactName);
+  }
+  const subDir = type + "s"; // "skills", "rules", "prompts"
+  return join(homedir(), ".agents", subDir, artifactName);
 }
 
 export function writeArtifactForIDE(
@@ -455,6 +462,10 @@ export function writeArtifactForIDE(
 
   if (artifactConfig.format === "dir") {
     const destDir = join(installBase, artifactName);
+    // Copilot, Cursor and Windsurf share ~/.agents/skills/ as both the canonical
+    // install path and the IDE-specific destination. Guard prevents rmSync from
+    // deleting the source before the copy runs.
+    if (destDir === canonicalDir) return destDir;
     rmSync(destDir, { recursive: true, force: true });
     copyDir(canonicalDir, destDir);
     return destDir;
@@ -513,7 +524,7 @@ export async function installSkillGlobal(
   const canonicalDir = getCanonicalDir(skillName, artifactType);
 
   try {
-    const alreadyOk = verifyRegistryEntry(skillName, entry, join(homedir(), ".agents", artifactType + "s"));
+    const alreadyOk = verifyRegistryEntry(skillName, entry, dirname(canonicalDir));
     if (!alreadyOk.ok) {
       if (
         !copyRegistryEntryFromLocal(skillName, entry, canonicalDir, opts) &&

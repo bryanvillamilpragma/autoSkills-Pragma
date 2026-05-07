@@ -645,7 +645,7 @@ async function showAvailableAgents(
   const allDetectedIDEs = [...globalIDEs, ...localIDEs];
 
   // Returns true only if the agent file/dir is present in AT LEAST ONE detected IDE folder.
-  // This is the source of truth — not the canonical staging dir (~/.agents/agents/).
+  // This is the source of truth — not the canonical staging dir (~/.agents/.staging-agents/).
   function isAgentInstalledInIDEs(agentName: string): boolean {
     for (const ide of allDetectedIDEs) {
       const cfg = ide.config.artifacts["agent"];

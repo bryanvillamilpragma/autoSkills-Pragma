@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.5.0](https://github.com/bryanvillamilpragma/autoSkills-Pragma/releases/tag/v0.5.0) (2026-05-06)
+
+### ✨ Features
+
+- feat(ide-map): unify IDE_MAP — all 5 IDEs (Claude Code, Kiro, Copilot, Windsurf, Cursor) are now `isGlobal: true` and appear in the install selector
+- feat(ide-map): Copilot, Windsurf and Cursor share `~/.agents/skills/` as the skill install path (avoiding duplication)
+- feat(ide-map): Windsurf uses `.codeium/windsurf/` for agents (global_workflows), rules and prompts
+- feat(cli): Cursor now appears as a selectable IDE during `npx autoskills-pragma` (previously required `.cursor/` in project root)
+
+### 🐛 Bug Fixes
+
+- fix(installer): agents no longer leave residual nested directories in `~/.agents/agents/` — staging moved to hidden `~/.agents/.cache/agents/`
+- fix(installer): `writeArtifactForIDE` skips self-copy when destination equals canonical dir (prevents duplication for Copilot/Cursor/Windsurf shared skills path)
+- fix(ide-map): Windsurf detection path corrected to `.codeium/windsurf` (was `.windsurf`)
+
+### 📦 Other Changes
+
+- chore(tests): add tests for shared skills path, Cursor isGlobal, Windsurf agent folder
+- docs(agent): update IDE_MAP architecture table with correct paths
+
 ## [0.4.0](https://github.com/bryanvillamilpragma/autoSkills-Pragma/releases/tag/v0.4.0) (2026-05-05)
 
 ### ✨ Features

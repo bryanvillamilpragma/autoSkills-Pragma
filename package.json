@@ -1,6 +1,6 @@
 {
   "name": "autoskills-pragma",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Auto-detect and install the best AI agent skills for your project — Pragma fork of autoskills by midudev",
   "keywords": [
     "agent",
@@ -34,7 +34,7 @@
   "engines": {
     "node": ">=22.6.0"
   },
-  "packageManager": "pnpm@10.33.3",
+  "packageManager": "pnpm@10.33.4",
   "scripts": {
     "build": "tsc",
     "test": "node --loader ./scripts/ts-loader.mjs --disable-warning=ExperimentalWarning --test 'tests/*.test.ts'",

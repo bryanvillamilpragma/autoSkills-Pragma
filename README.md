@@ -8,7 +8,7 @@ Auto-detect and install the best AI agent skills for your project. One command, 
 npx autoskills-pragma
 ```
 
-`autoskills-pragma` scans your project, detects the technologies you use, and installs curated [AI agent skills](https://skills.sh) that make Cursor, Claude Code, and other AI coding assistants actually understand your stack.
+`autoskills-pragma` scans your project, detects the technologies you use, and installs curated [AI agent skills](https://skills.sh) that make Claude Code, Kiro, Copilot, Windsurf, and Cursor actually understand your stack.
 
 ## Quick Start
 
@@ -44,12 +44,13 @@ If `claude-code` is auto-detected or passed with `-a`, `autoskills-pragma` write
 
 ## Options
 
-| Flag              | Description                                           |
-| ----------------- | ----------------------------------------------------- |
-| `-y`, `--yes`     | Skip confirmation prompt, install all detected skills |
-| `--dry-run`       | Show detected skills without installing anything      |
-| `-v`, `--verbose` | Show install trace and error details                  |
-| `-h`, `--help`    | Show help message                                     |
+| Flag              | Description                                              |
+| ----------------- | -------------------------------------------------------- |
+| `-y`, `--yes`     | Skip confirmation prompt, install all detected skills    |
+| `--dry-run`       | Show detected skills without installing anything         |
+| `--agents`        | Install AI agents/workflows for your detected stack      |
+| `-v`, `--verbose` | Show install trace and error details                     |
+| `-h`, `--help`    | Show help message                                        |
 
 ## Supported Technologies
 

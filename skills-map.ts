@@ -1473,8 +1473,8 @@ export const IDE_MAP: Record<string, IDEConfig> = {
     detectionPath: ".vscode",
     isGlobal: true,
     artifacts: {
-      skill:  { folder: ".copilot/skills",  format: "dir",    fileExt: ""                        },
-      agent:  { folder: ".copilot/agents",  format: "file",   fileExt: ".md"                     },
+      skill:  { folder: ".agents/skills",   format: "dir",    fileExt: ""                        },
+      agent:  { folder: ".agents/agents",   format: "file",   fileExt: ".md"                     },
       rule:   { folder: ".copilot",         format: "append", fileExt: "copilot-instructions.md" },
       prompt: { folder: ".copilot/prompts", format: "file",   fileExt: ".md"                     },
     },
@@ -1483,18 +1483,18 @@ export const IDE_MAP: Record<string, IDEConfig> = {
     detectionPath: ".codeium/windsurf",
     isGlobal: true,
     artifacts: {
-      skill:  { folder: ".windsurf/skills",    format: "dir",  fileExt: ""    },
-      agent:  { folder: ".windsurf/workflows", format: "file", fileExt: ".md" },
-      rule:   { folder: ".windsurf/rules",     format: "file", fileExt: ".md" },
-      prompt: { folder: ".windsurf/prompts",   format: "file", fileExt: ".md" },
+      skill:  { folder: ".agents/skills",                      format: "dir",  fileExt: ""    },
+      agent:  { folder: ".codeium/windsurf/global_workflows",  format: "file", fileExt: ".md" },
+      rule:   { folder: ".codeium/windsurf/rules",             format: "file", fileExt: ".md" },
+      prompt: { folder: ".codeium/windsurf/prompts",           format: "file", fileExt: ".md" },
     },
   },
   "cursor": {
     detectionPath: ".cursor",
-    isGlobal: false,
+    isGlobal: true,
     artifacts: {
-      skill:  { folder: ".cursor/skills",  format: "dir",  fileExt: ""     },
-      agent:  { folder: ".cursor/agents",  format: "file", fileExt: ".md"  },
+      skill:  { folder: ".agents/skills",  format: "dir",  fileExt: ""     },
+      agent:  { folder: ".agents/agents",  format: "file", fileExt: ".md"  }, // Cursor no soporta agents custom, pero comparte la carpeta
       rule:   { folder: ".cursor/rules",   format: "file", fileExt: ".mdc" },
       prompt: { folder: ".cursor/prompts", format: "file", fileExt: ".md"  },
     },
