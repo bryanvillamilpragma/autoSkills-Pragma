@@ -1,7 +1,7 @@
 {
-  "name": "autoskills-pragma",
+  "name": "sopp-front",
   "version": "0.5.0",
-  "description": "Auto-detect and install the best AI agent skills for your project — Pragma fork of autoskills by midudev",
+  "description": "Auto-detect and install the best AI agent skills for your project — Pragma",
   "keywords": [
     "agent",
     "ai",
@@ -23,7 +23,7 @@
     "url": "git+https://github.com/bryanvillamilpragma/autoSkills-Pragma.git"
   },
   "bin": {
-    "autoskills-pragma": "index.mjs"
+    "sopp-front": "index.mjs"
   },
   "files": [
     "index.mjs",

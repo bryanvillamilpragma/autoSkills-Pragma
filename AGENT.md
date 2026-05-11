@@ -2,7 +2,7 @@
 
 ## Qué es este proyecto
 
-**autoskills-pragma** es un CLI (`npx autoskills-pragma`) que auto-detecta las tecnologías de un proyecto y les instala "skills" curados (archivos Markdown) que enseñan a los agentes de IA (Cursor, Claude Code, etc.) a trabajar correctamente con ese stack. Escanea `package.json`, archivos de config, lockfiles, Gradle y .NET, presenta un selector interactivo e instala los skills verificados en `.agents/skills/` con symlinks a la carpeta de cada agente.
+**sopp-front** es un CLI (`npx sopp-front`) que auto-detecta las tecnologías de un proyecto y les instala "skills" curados (archivos Markdown) que enseñan a los agentes de IA (Cursor, Claude Code, etc.) a trabajar correctamente con ese stack. Escanea `package.json`, archivos de config, lockfiles, Gradle y .NET, presenta un selector interactivo e instala los skills verificados en `.agents/skills/` con symlinks a la carpeta de cada agente.
 
 ### Qué hace hoy
 
@@ -47,7 +47,7 @@ Requiere Node.js >= 22.6.0.
 ## Estructura del proyecto
 
 ```text
-autoskills-pragma/
+sopp-front/
 ├── index.mjs              # Entry point — verifica Node >= 22.6, carga main.ts o dist/
 ├── main.ts                # CLI principal: parseo de args, detección, selección, instalación
 ├── lib.ts                 # Lógica de detección de tecnologías, workspaces, combos
@@ -213,19 +213,19 @@ Luego ejecutar `pnpm validate:registry` para confirmar.
 
 ## Auth System
 
-autoskills-pragma requiere autenticación con una cuenta de Google `@pragma.com.co`.
+sopp-front requiere autenticación con una cuenta de Google `@pragma.com.co`.
 
 ### Cómo funciona
 
 - OAuth 2.0 para Installed Applications (RFC 8252) con PKCE obligatorio (RFC 7636)
 - Flujo: loopback IP redirect (`http://127.0.0.1:<puerto-efímero>`)
-- Token almacenado en `~/.config/autoskills-pragma/auth.json` (permisos: `600`)
+- Token almacenado en `~/.config/sopp-front/auth.json` (permisos: `600`)
 - Refresh automático cuando el token expira (tokens de Google expiran en 1 h)
 - Validación de dominio vía claim `hd` del ID token de Google
 
 ### Setup en Google Cloud Console
 
-1. Crear proyecto `autoskills-pragma-auth` en Google Cloud Console
+1. Crear proyecto `sopp-front-auth` en Google Cloud Console
 2. Habilitar **Google Identity API** / **People API**
 3. OAuth consent screen:
    - User Type: **Internal** (restringe a cuentas del workspace `pragma.com.co`)
@@ -249,13 +249,13 @@ autoskills-pragma requiere autenticación con una cuenta de Google `@pragma.com.
 ### Ubicación del token
 
 ```text
-~/.config/autoskills-pragma/auth.json   (permisos 600)
+~/.config/sopp-front/auth.json   (permisos 600)
 ```
 
 ### Logout
 
 ```bash
-npx autoskills-pragma --logout
+npx sopp-front --logout
 ```
 
 ---

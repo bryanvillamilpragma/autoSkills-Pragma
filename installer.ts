@@ -259,7 +259,7 @@ function encodeRawPath(skillName: string, rel: string): string {
 }
 
 function githubDownloadHeaders(url: string): HeadersInit {
-  const headers: Record<string, string> = { "User-Agent": "autoskills" };
+  const headers: Record<string, string> = { "User-Agent": "sopp-front" };
   const host = new URL(url).hostname;
   if (GITHUB_TOKEN && /(^|\.)githubusercontent\.com$/i.test(host)) {
     headers.Authorization = `Bearer ${GITHUB_TOKEN}`;

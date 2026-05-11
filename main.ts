@@ -41,7 +41,7 @@ const VERSION: string = (() => {
     if (!existsSync(p)) continue;
     try {
       const pkg = JSON.parse(readFileSync(p, "utf-8"));
-      if (pkg.name === "autoskills-pragma") return pkg.version;
+      if (pkg.name === "sopp-front") return pkg.version;
     } catch {}
   }
   return "0.0.0";
@@ -113,16 +113,16 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): CliArgs {
 
 function showHelp(): void {
   log(`
-  ${bold("autoskills")} — Auto-install the best AI skills for your project
+  ${bold("sopp-front")} — Auto-install the best AI skills for your project
 
   ${bold("Usage:")}
-    npx autoskills                   Detect & install skills
-    npx autoskills ${dim("-y")}                   Skip confirmation
-    npx autoskills ${dim("--dry-run")}            Show what would be installed
-    npx autoskills ${dim("--clear-cache")}        Clear downloaded skills cache
-    npx autoskills ${dim("-a cursor claude-code")} Install for specific IDEs only
-    npx autoskills ${dim("agents")}               Show & install agents/workflows for your stack
-    npx autoskills ${dim("--logout")}             Sign out and remove cached token
+    npx sopp-front                   Detect & install skills
+    npx sopp-front ${dim("-y")}                   Skip confirmation
+    npx sopp-front ${dim("--dry-run")}            Show what would be installed
+    npx sopp-front ${dim("--clear-cache")}        Clear downloaded skills cache
+    npx sopp-front ${dim("-a cursor claude-code")} Install for specific IDEs only
+    npx sopp-front ${dim("agents")}               Show & install agents/workflows for your stack
+    npx sopp-front ${dim("--logout")}             Sign out and remove cached token
 
   ${bold("Options:")}
     -y, --yes       Skip confirmation prompt
@@ -445,12 +445,12 @@ function printSummary({ installed, failed, errors, elapsed, verbose }: SummaryOp
       if (!verbose) {
         log(dim("   Run again with --verbose to see the full error details."));
       }
-      log(dim(`   If it looks like an autoskills bug, please create an issue: ${ISSUES_URL}`));
+      log(dim(`   If it looks like a sopp-front bug, please create an issue: ${ISSUES_URL}`));
     }
   }
 
   log();
-  log(pink("   autoskills-pragma is a Pragma fork of autoskills by @midudev → https://github.com/sponsors/midudev"));
+  log(pink("   sopp-front — AI Skills CLI by Pragma Engineering"));
   log();
 }
 
@@ -642,7 +642,7 @@ async function showAvailableAgents(
       log(dim(`  Stack detected: ${detected.map((t) => t.id).join(", ")}`));
     }
     log();
-    log(dim('  Run "npx autoskills-pragma" to install skills instead.'));
+    log(dim('  Run "npx sopp-front" to install skills instead.'));
     log();
     return;
   }
@@ -857,14 +857,14 @@ async function main(): Promise<void> {
   // ── Educational message for workflow positional ─────────
   if (workflow) {
     log("");
-    log(cyan("  ◆ ") + bold("autoskills-pragma installs tools — your IDE runs them."));
+    log(cyan("  ◆ ") + bold("sopp-front installs tools — your IDE runs them."));
     log("");
     log(dim(`  To use "${workflow}", go to your IDE and ask your agent:`));
     log(cyan(`    "use the ${workflow} workflow"`));
     log("");
     log(dim("  Your agent will use the installed skills and workflows automatically."));
     log("");
-    log(dim('  Tip: run ') + cyan('"npx autoskills-pragma agents"') + dim(" to install agents first."));
+    log(dim('  Tip: run ') + cyan('"npx sopp-front agents"') + dim(" to install agents first."));
     log("");
     process.exit(0);
   }

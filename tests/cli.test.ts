@@ -70,7 +70,7 @@ describe("CLI", () => {
 
   it("shows help with --help", () => {
     const output = run(["--help"]);
-    ok(output.includes("autoskills"));
+    ok(output.includes("sopp-front"));
     ok(output.includes("--dry-run"));
     ok(output.includes("--clear-cache"));
     ok(output.includes("--yes"));
@@ -79,7 +79,7 @@ describe("CLI", () => {
 
   it("shows help with -h", () => {
     const output = run(["-h"]);
-    ok(output.includes("autoskills"));
+    ok(output.includes("sopp-front"));
   });
 
   it("clears the autoskills cache with --clear-cache", () => {
