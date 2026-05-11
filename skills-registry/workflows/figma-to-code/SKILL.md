@@ -39,67 +39,215 @@ You ask before generating. You confirm the output structure before writing files
 
 ---
 
-## Step 1: Detect Input Mode
+## Step 1: Detect Input Mode & Guide Setup
 
-On activation, detect which Figma input is available:
+On activation, silently check for available Figma access in this order:
 
-```yaml
-input_detection:
-  mode_1_mcp:
-    check: MCP server "figma" or "figma-mcp" configured in .claude/mcp.json
-    capability: Full API access — nodes, tokens, variables, images
-    priority: 1 (best)
+1. **MCP** — check if `figma` or `figma-mcp` server is in `.claude/mcp.json` or `~/.claude/mcp.json`
+2. **Token** — check for `FIGMA_API_TOKEN` in `.env`, `.env.local`, or `process.env`
+3. **Screenshot** — check if user attached/dragged an image in the message
+4. **JSON** — check if user attached a `.json` file
 
-  mode_2_token:
-    check: FIGMA_API_TOKEN in .env, .env.local, or provided by user
-    capability: Full REST API access
-    priority: 2
+---
 
-  mode_3_screenshot:
-    check: User drags/pastes an image
-    capability: Vision analysis — layout, colors, typography (no exact values)
-    priority: 3
+### If MCP is detected → proceed directly (best mode)
+### If Token is detected → proceed with REST API
+### If Screenshot is attached → proceed with vision analysis
+### If NOTHING is detected → run the interactive setup guide below
 
-  mode_4_json:
-    check: User provides exported Figma JSON file
-    capability: Full design data without API calls
-    priority: 4
-```
+---
 
-**If no input is available, show setup guide:**
+## Setup Guide — Shown ONLY when no access is detected
+
+Greet the user warmly and explain the options clearly:
 
 ```
-◆ Figma to Code — Setup Required
+¡Hola! Para convertir tu diseño de Figma a código necesito acceso a Figma.
 
-  Option A (Recommended): Configure Figma MCP
-  ─────────────────────────────────────────────
-  Add to ~/.claude/mcp.json:
+Tengo 3 opciones para ti — elige la que prefieras:
 
-  {
-    "mcpServers": {
-      "figma": {
-        "command": "npx",
-        "args": ["-y", "figma-mcp"],
-        "env": { "FIGMA_API_TOKEN": "YOUR_TOKEN" }
+  A) Configurar Figma MCP  ← recomendado, conexión directa permanente
+  B) Usar un token de Figma ← rápido, lo configuras en .env.local
+  C) Subir un screenshot    ← sin configuración, pero menos preciso
+
+¿Cuál prefieres? (A / B / C)
+```
+
+**STOP. Wait for user to choose A, B, or C.**
+
+---
+
+### Si elige A — Guía de setup del MCP
+
+Ejecutar paso a paso, esperar confirmación entre pasos:
+
+```
+◆ Setup Figma MCP — 3 pasos
+
+━━━ Paso 1 de 3: Obtén tu token de Figma ━━━
+
+1. Abre Figma en el navegador → https://www.figma.com
+2. Haz clic en tu avatar (esquina superior derecha)
+3. Ve a  Settings  →  Security
+4. Baja hasta  Personal access tokens
+5. Haz clic en  + Add new token
+6. Nombre: "MCP Claude" (o el que prefieras)
+7. Expiration: No expiration (o 30 días si prefieres)
+8. Scope: ✅ File content (Read-only) — solo necesitas esto
+9. Haz clic en  Create token
+10. ⚠️ COPIA el token ahora — Figma no lo muestra de nuevo
+
+¿Ya tienes el token? Pégalo aquí y vamos al paso 2.
+```
+
+**STOP. Wait for user to paste the token.**
+
+```
+◆ Setup Figma MCP — 3 pasos
+
+━━━ Paso 2 de 3: Agrega el MCP a Claude Code ━━━
+
+Tengo que agregar el servidor de Figma a tu configuración.
+Voy a editar ~/.claude/mcp.json con el token que me diste.
+
+[Agregar automáticamente si tiene permisos, o mostrar el JSON exacto:]
+
+Agrega esto a tu ~/.claude/mcp.json
+(si el archivo no existe, créalo con este contenido):
+
+{
+  "mcpServers": {
+    "figma": {
+      "command": "npx",
+      "args": ["-y", "figma-mcp"],
+      "env": {
+        "FIGMA_API_TOKEN": "TU_TOKEN_AQUÍ"
       }
     }
   }
+}
 
-  Option B: Set environment variable
-  ─────────────────────────────────────────────
-  Add to .env.local:
-  FIGMA_API_TOKEN=your_personal_access_token
+💡 Si ya tienes otros MCPs configurados, agrega solo el bloque "figma": {...}
+   dentro de "mcpServers" sin reemplazar los demás.
 
-  Option C: Drop a screenshot
-  ─────────────────────────────────────────────
-  Export frame from Figma (Cmd+Shift+E) and drag it here.
-  Less precise — no exact values, but fast for simple components.
-
-  Get your token: figma.com → Settings → Security → Personal access tokens
-  Required scope: File content (read-only)
+¿Lo agregaste? Dime cuando esté listo.
 ```
 
-**STOP. Wait for user to provide input or configure access.**
+**STOP. Wait for confirmation.**
+
+```
+◆ Setup Figma MCP — 3 pasos
+
+━━━ Paso 3 de 3: Reinicia Claude Code ━━━
+
+Para que el MCP se active necesitas reiniciar Claude Code:
+
+  • En la terminal: cierra y vuelve a abrir
+  • En VS Code / Cursor: Cmd+Shift+P → "Developer: Reload Window"
+  • En Claude Desktop: Cmd+Q y vuelve a abrir
+
+Después de reiniciar, escríbeme la URL de tu frame en Figma
+y empezamos a generar código 🚀
+
+Formato de URL:
+https://www.figma.com/design/XXXXX/nombre-del-proyecto?node-id=123-456
+```
+
+---
+
+### Si elige B — Guía de setup con token directo
+
+```
+◆ Setup Token de Figma — 2 pasos
+
+━━━ Paso 1 de 2: Obtén tu token ━━━
+
+1. Abre → https://www.figma.com
+2. Clic en tu avatar → Settings → Security
+3. Baja a  Personal access tokens  → clic en  + Add new token
+4. Nombre: "figma-to-code"
+5. Scope: ✅ File content (Read-only)
+6. Clic en  Create token
+7. ⚠️ Copia el token — solo se muestra una vez
+
+¿Ya lo tienes? Pégalo aquí.
+```
+
+**STOP. Wait for token.**
+
+```
+◆ Setup Token de Figma — 2 pasos
+
+━━━ Paso 2 de 2: Guarda el token ━━━
+
+Crea o edita el archivo .env.local en la raíz de tu proyecto
+y agrega esta línea con tu token:
+
+  FIGMA_API_TOKEN=figd_xxxxxxxxxxxxxxxxxxxx
+
+⚠️ Asegúrate de que .env.local esté en tu .gitignore
+   (nunca subas el token a git)
+
+Verificación rápida:
+  cat .env.local | grep FIGMA    ← debe mostrar tu token
+
+¿Listo? Dame la URL del frame en Figma y empezamos 🎨
+```
+
+---
+
+### Si elige C — Modo screenshot
+
+```
+◆ Modo Screenshot
+
+Sin problema, podemos trabajar con una imagen.
+Los valores (colores, spacing, tipografía) serán aproximados
+pero el componente quedará funcional.
+
+Para mejores resultados:
+  • Exporta el frame completo, no un recorte parcial
+  • Usa  Cmd+Shift+E  (Mac) o  Ctrl+Shift+E  (Windows) en Figma
+  • Elige PNG a 2x para más detalle
+
+Arrastra o pega el screenshot aquí cuando quieras.
+```
+
+**STOP. Wait for image.**
+
+---
+
+### Errors durante la conexión
+
+```yaml
+token_invalid:
+  síntoma: "401 Unauthorized" de la API
+  mensaje: |
+    ⚠️ El token no es válido o expiró.
+    Vuelve a Figma → Settings → Security → Personal access tokens
+    y genera uno nuevo. El anterior probablemente venció o fue revocado.
+
+archivo_privado:
+  síntoma: "403 Forbidden" de la API
+  mensaje: |
+    ⚠️ No tengo acceso a ese archivo de Figma.
+    Asegúrate de que el archivo sea accesible con tu cuenta.
+    Si es de otra organización, pide que te inviten como viewer.
+
+nodo_no_encontrado:
+  síntoma: "404" o nodo vacío
+  mensaje: |
+    ⚠️ No encontré ese frame en Figma.
+    Vuelve a copiar el link desde Figma:
+    Clic derecho sobre el frame → "Copy link to selection"
+    y pégalo de nuevo aquí.
+
+rate_limit:
+  síntoma: "429 Too Many Requests"
+  mensaje: |
+    ⚠️ Figma limitó las peticiones temporalmente.
+    Espero 60 segundos y reintento automáticamente...
+```
 
 ---
 
