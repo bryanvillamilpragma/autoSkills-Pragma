@@ -54,6 +54,7 @@ export const SKILLS_MAP: Technology[] = [
       "pragma/autoskills/workflows/performance-optimizer",
       "pragma/autoskills/workflows/security-auditor",
       "pragma/autoskills/workflows/microfrontend-architect",
+      "pragma/autoskills/workflows/figma-to-code",
     ],
     autoRules: [
       "pragma/autoskills/rules/solid-clean",
@@ -82,6 +83,7 @@ export const SKILLS_MAP: Technology[] = [
       "pragma/autoskills/workflows/performance-optimizer",
       "pragma/autoskills/workflows/security-auditor",
       "pragma/autoskills/workflows/microfrontend-architect",
+      "pragma/autoskills/workflows/figma-to-code",
     ],
     autoRules: [
       "pragma/autoskills/rules/solid-clean",
@@ -157,6 +159,7 @@ export const SKILLS_MAP: Technology[] = [
       "pragma/autoskills/workflows/performance-optimizer",
       "pragma/autoskills/workflows/security-auditor",
       "pragma/autoskills/workflows/microfrontend-architect",
+      "pragma/autoskills/workflows/figma-to-code",
     ],
     autoRules: [
       "pragma/autoskills/rules/clean-architecture",

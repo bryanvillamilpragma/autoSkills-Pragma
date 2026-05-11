@@ -610,6 +610,13 @@ const AGENTS_REGISTRY: AgentEntry[] = [
     skillPath: "pragma/autoskills/workflows/microfrontend-architect",
     hint: "Shell + remotes, shared deps, routing y comunicación entre MFEs",
   },
+  {
+    name: "figma-to-code",
+    description: "Convierte diseños de Figma a componentes production-ready con tokens y variantes",
+    requires: ["react", "angular", "nextjs", "astro"],
+    skillPath: "pragma/autoskills/workflows/figma-to-code",
+    hint: "Figma URL → React/Angular/Next.js/Astro + Tailwind tokens",
+  },
 ];
 
 // ── Agents screen ─────────────────────────────────────────────

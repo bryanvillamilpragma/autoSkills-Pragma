@@ -13549,6 +13549,26 @@
       },
       "bundleHash": "71ffd3cd6526e2c7def4da28059e77ee3c5908d4c15f82855de592fe0016f93c",
       "skillPath": "pragma/autoskills/workflows/microfrontend-architect"
+    },
+    "workflows/figma-to-code": {
+      "commitSha": "local",
+      "files": [
+        "SKILL.md"
+      ],
+      "review": {
+        "status": "approved",
+        "flags": [],
+        "summary": "",
+        "model": "local",
+        "promptVersion": "1.0.0",
+        "reviewedAt": "2026-05-11T00:00:00.000Z"
+      },
+      "source": "pragma/autoskills/workflows/figma-to-code",
+      "sha256": {
+        "SKILL.md": "2b4c2809ed05cc954caebe3b8fa8ecbdb09dd9b2d467eca0d705ff1ef6a5631d"
+      },
+      "bundleHash": "2b4c2809ed05cc954caebe3b8fa8ecbdb09dd9b2d467eca0d705ff1ef6a5631d",
+      "skillPath": "pragma/autoskills/workflows/figma-to-code"
     }
   }
 }
