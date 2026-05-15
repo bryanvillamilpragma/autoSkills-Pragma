@@ -628,8 +628,9 @@ async function selectWorkflows(workflows: SkillEntry[], autoYes: boolean): Promi
     const selected = workflows.filter((w) => !w.installed).slice(0, 3);
     for (const w of selected) {
       const { skillName } = parseSkillPath(w.skill);
-      const agent = AGENTS_REGISTRY.find((a) => a.name === skillName);
-      log(dim(`     ✔ ${skillName}`) + (agent ? dim(`  ${agent.description}`) : ""));
+      const shortName = skillName.split("/").pop()!;
+      const agent = AGENTS_REGISTRY.find((a) => a.name === shortName);
+      log(dim(`     ✔ ${shortName}`) + (agent ? dim(`  ${agent.description}`) : ""));
     }
     log();
     return selected;
@@ -645,10 +646,11 @@ async function selectWorkflows(workflows: SkillEntry[], autoYes: boolean): Promi
   const selected = await multiSelect(workflows, {
     labelFn: (w) => {
       const { skillName } = parseSkillPath(w.skill);
-      const agent = AGENTS_REGISTRY.find((a) => a.name === skillName);
+      const shortName = skillName.split("/").pop()!;
+      const agent = AGENTS_REGISTRY.find((a) => a.name === shortName);
       const desc = agent?.description ?? "";
       const installedTag = w.installed ? dim(" (installed)") : "";
-      return `${cyan(bold(skillName))}  ${dim(desc)}${installedTag}`;
+      return `${cyan(bold(shortName))}  ${dim(desc)}${installedTag}`;
     },
     hintFn: (w) => {
       const techSources = w.sources.filter((s) => !s.includes(" + "));
