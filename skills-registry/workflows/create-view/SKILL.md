@@ -17,6 +17,39 @@ del proyecto donde estás trabajando.
 
 ---
 
+## Inputs — Definition of Ready (DoR)
+
+Antes de generar cualquier archivo, el workflow recopila o pregunta:
+
+| Input | Fuente |
+|-------|--------|
+| **Nombre y propósito del componente** | Preguntado al dev (Pregunta 1) |
+| **Referencia visual** | Screenshot / URL Figma / descripción / "sin referencia" — preguntado al dev (Pregunta 2) |
+| **Tipo smart/dumb** | Preguntado al dev solo si hay ambigüedad (Pregunta 3) |
+| **Path destino** | Inferido del scan del proyecto — preguntado si hay ambigüedad entre features/, shared/, pages/ |
+| **Stack y design system** | Detectados automáticamente de `package.json` |
+| **Modelos de dominio y UseCases** | Detectados automáticamente buscando por keyword en `src/` |
+| **Convenciones del equipo** | Leídas de `CLAUDE.md` + 2 componentes existentes del mismo tipo |
+
+---
+
+## Outputs — Definition of Done (DoD)
+
+El workflow está completo cuando se cumplen **todos** estos criterios:
+
+| Output | Descripción |
+|--------|-------------|
+| **Archivos generados** | Component + HTML/template + ViewModel (si smart) + Spec base — según stack |
+| **Código que compila** | Sin errores de TypeScript ni de template en el primer intento |
+| **Integración al routing** | Ruta registrada en el router del proyecto (si es page/smart component) |
+| **Integración al módulo** | Componente importado donde corresponde (si es Angular con NgModule) |
+| **Spec generado** | Tests básicos de estado inicial y renderizado incluidos |
+| **Siguiente paso sugerido** | `/unit-test-review` para completar la cobertura de tests |
+
+---
+
+---
+
 ## Paso 1 — Leer el contexto del proyecto antes de preguntar nada
 
 Lee estos archivos si existen. Son la fuente de verdad de las convenciones del equipo:
@@ -128,7 +161,20 @@ Si no queda claro por el nombre y la descripción:
 > ¿Es una página completa con lógica propia (smart) o
 > un componente reutilizable sin lógica (dumb)?
 
-Con estas 3 respuestas tienes suficiente. **No hacer más preguntas.**
+### Pregunta 4 — Solo si hay ambigüedad de path destino
+
+Si el proyecto tiene múltiples carpetas candidatas y no queda claro cuál usar:
+
+> ¿Dónde debe vivir este componente?
+>
+> Opciones detectadas en el proyecto:
+> - `src/app/presentation/pages/{feature}/` ← para páginas con ruta propia
+> - `src/app/presentation/components/` ← para componentes reutilizables
+> - `src/app/shared/components/` ← para componentes usados en múltiples features
+>
+> ¿Cuál corresponde?
+
+Con estas respuestas tienes suficiente. **No hacer más preguntas.**
 
 ---
 
@@ -359,15 +405,86 @@ Solo escribir archivos después de confirmación explícita.
 
 ---
 
-## Paso 8 — Después de generar
+## Paso 8 — Integrar al routing y módulo
+
+Este paso es **obligatorio para smart components (páginas)**. Omitir para dumb components.
+
+### Angular — Registrar en el router
+
+Buscar el archivo de routing del feature o app-routing:
+```
+src/app/app.routes.ts
+src/app/{feature}/{feature}.routes.ts
+src/app/app-routing.module.ts
+```
+
+Agregar la ruta con lazy loading:
+```typescript
+{
+  path: 'payment-form',
+  loadComponent: () =>
+    import('./presentation/pages/payments/payment-form/payment-form.component')
+      .then(m => m.PaymentFormComponent),
+},
+```
+
+Si el proyecto usa NgModule (no standalone), registrar en el módulo correspondiente:
+```typescript
+// {feature}.module.ts
+imports: [PaymentFormComponent],
+```
+
+### React / Next.js — Registrar en el router
+
+**React Router:**
+```typescript
+// src/router/routes.tsx
+{ path: '/payment-form', element: <PaymentFormPage /> },
+```
+
+**Next.js App Router:**
+El archivo `page.tsx` generado en `app/{feature}/page.tsx` ya es la ruta — no se necesita registro manual.
+
+**Next.js Pages Router:**
+El archivo en `pages/{feature}.tsx` ya es la ruta — no se necesita registro manual.
+
+---
+
+## Paso 9 — Verificar compilación
+
+Después de generar e integrar, verificar que el código compila sin errores:
+
+**Angular:**
+```bash
+npx ng build --configuration=development 2>&1 | head -30
+```
+
+**React / Next.js:**
+```bash
+npx tsc --noEmit 2>&1 | head -30
+```
+
+Si hay errores de compilación:
+1. Mostrar el error exacto al dev
+2. Analizar la causa (tipo faltante, import incorrecto, etc.)
+3. Corregir en el archivo generado
+4. Re-verificar hasta compilación limpia
+
+**No marcar el workflow como completo si hay errores de TypeScript.**
+
+---
+
+## Paso 10 — Después de generar
 
 Mostrar al dev:
 
 ```
 ✔ {N} archivos generados en {ruta}
+✔ Ruta registrada en {router-file}
+✔ Compilación verificada: sin errores TypeScript
 
 Siguiente paso sugerido:
-→ /unit-test-review   para revisar y completar los tests
+→ /unit-test-review   para revisar y completar los tests del componente
 ```
 
 ---

@@ -22,6 +22,36 @@ styling: ["Tailwind CSS", "CSS Modules", "Plain CSS"]
 inputs: ["Figma URL", "Figma MCP", "Screenshot", "Figma JSON Export"]
 ```
 
+## Inputs — Definition of Ready (DoR)
+
+Antes de generar código, el workflow necesita:
+
+| Input | Fuente |
+|-------|--------|
+| **Acceso a Figma** | MCP conectado / Token en `.env.local` / Screenshot adjunto / JSON exportado |
+| **URL del frame o nodo de Figma** | Provista por el dev — o screenshot si no hay acceso API |
+| **Stack del proyecto** | Detectado de `package.json` automáticamente |
+| **Design system existente** | Detectado de `package.json` (Tailwind, MUI, Angular Material, shadcn, etc.) |
+| **Convenciones de componentes** | 2 componentes existentes del proyecto leídos automáticamente |
+| **Verificación de duplicados** | Escaneo automático del proyecto para detectar si el componente ya existe |
+
+---
+
+## Outputs — Definition of Done (DoD)
+
+El workflow está completo cuando se cumplen **todos** estos criterios:
+
+| Output | Descripción |
+|--------|-------------|
+| **Componente generado** | Archivo principal con tipado completo y todas las variantes del diseño |
+| **Design tokens** | `src/design-tokens/tokens.ts` + `tailwind.config.ts` extendido (si aplica) |
+| **Barrel export** | `index.ts` con re-export del componente y sus tipos |
+| **Test generado** | `{Name}.spec.ts` / `{Name}.test.tsx` con casos básicos de renderizado y variantes |
+| **Sin duplicados** | Confirmación de que no existe un componente equivalente en el proyecto |
+| **Siguiente paso sugerido** | `/unit-test-review` para completar la suite de tests |
+
+---
+
 ## Identity
 
 You are a **Senior Frontend Engineer** specialized in translating Figma designs into production-ready code. You read Figma files via MCP or REST API, extract design tokens and component structure, and generate pixel-perfect components that follow the project's existing conventions. You never generate demos — only production code aligned with the detected stack, naming conventions, and styling system.
@@ -251,7 +281,7 @@ rate_limit:
 
 ---
 
-## Step 2: Detect Stack & Styling
+## Step 2: Detect Stack, Styling & Duplicates
 
 Before generating any code, scan the project:
 
@@ -279,6 +309,14 @@ stack_detection: {
     react/nextjs:  src/components/ or app/components/
     angular:       src/app/components/ or src/app/shared/
     astro:         src/components/
+
+  duplicate_check:
+    # Buscar si ya existe un componente con nombre similar antes de generar
+    react/nextjs:  src/**/{ComponentName}*.tsx
+    angular:       src/**/{component-name}*.component.ts
+    astro:         src/**/{ComponentName}*.astro
+    # Si existe → mostrar al dev y preguntar si quiere actualizar el existente
+    # en lugar de crear uno nuevo
 }
 ```
 
@@ -734,6 +772,89 @@ const Tag = href ? "a" : "button";
 
 ---
 
+## Step 6b: Generate Tests
+
+Después de generar el componente, generar automáticamente el archivo de test básico:
+
+### React / Next.js
+
+```tsx
+// src/components/PrimaryButton/PrimaryButton.test.tsx
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { PrimaryButton } from "./PrimaryButton";
+
+describe("PrimaryButton", () => {
+  it("renders children correctly", () => {
+    render(<PrimaryButton>Click me</PrimaryButton>);
+    expect(screen.getByRole("button", { name: /click me/i })).toBeInTheDocument();
+  });
+
+  it("applies size variants", () => {
+    const { rerender } = render(<PrimaryButton size="sm">Small</PrimaryButton>);
+    expect(screen.getByRole("button")).toHaveClass("px-3");
+    rerender(<PrimaryButton size="lg">Large</PrimaryButton>);
+    expect(screen.getByRole("button")).toHaveClass("px-6");
+  });
+
+  it("is disabled and shows loading state", () => {
+    render(<PrimaryButton isLoading>Loading</PrimaryButton>);
+    expect(screen.getByRole("button")).toBeDisabled();
+  });
+
+  it("calls onClick handler", async () => {
+    const handleClick = jest.fn();
+    render(<PrimaryButton onClick={handleClick}>Click</PrimaryButton>);
+    await userEvent.click(screen.getByRole("button"));
+    expect(handleClick).toHaveBeenCalledTimes(1);
+  });
+});
+```
+
+### Angular
+
+```typescript
+// src/app/shared/components/primary-button/primary-button.component.spec.ts
+import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { PrimaryButtonComponent } from "./primary-button.component";
+
+describe("PrimaryButtonComponent", () => {
+  let fixture: ComponentFixture<PrimaryButtonComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [PrimaryButtonComponent],
+    }).compileComponents();
+    fixture = TestBed.createComponent(PrimaryButtonComponent);
+  });
+
+  it("renders with default props", async () => {
+    await fixture.whenStable();
+    const button = fixture.nativeElement.querySelector("button");
+    expect(button).toBeTruthy();
+    expect(button.disabled).toBeFalsy();
+  });
+
+  it("disables the button when isLoading is true", async () => {
+    fixture.componentRef.setInput("isLoading", true);
+    await fixture.whenStable();
+    const button = fixture.nativeElement.querySelector("button");
+    expect(button.disabled).toBeTruthy();
+  });
+
+  it("emits clicked event on click", async () => {
+    const emitSpy = jest.spyOn(fixture.componentInstance.clicked, "emit");
+    fixture.nativeElement.querySelector("button").click();
+    await fixture.whenStable();
+    expect(emitSpy).toHaveBeenCalled();
+  });
+});
+```
+
+Los tests generados cubren: renderizado inicial, variantes del diseño, estado disabled/loading y eventos. Para tests completos de lógica de negocio: `/unit-test-review`.
+
+---
+
 ## Step 7: Design Tokens Output
 
 When user requests token extraction or the project has no design tokens yet:
@@ -905,3 +1026,19 @@ When only a screenshot is available (no API access):
 | Component needs animation (Figma Smart Animate) | Generate with Tailwind `transition-*` or Framer Motion |
 | Design has responsive breakpoints (multiple frames) | Generate with Tailwind responsive prefixes `sm:` `md:` `lg:` |
 | Figma has referenced components not in scope | Fetch referenced component automatically and generate both |
+| Componente ya existe en el proyecto | Preguntar: ¿actualizar el existente o crear nuevo? Nunca duplicar silenciosamente |
+
+## Siguiente paso sugerido
+
+Al cerrar el workflow:
+
+```
+✔ Componente generado: src/components/{Name}/{Name}.tsx
+✔ Design tokens: src/design-tokens/tokens.ts
+✔ Tests básicos: src/components/{Name}/{Name}.test.tsx
+✔ Sin duplicados detectados en el proyecto
+
+Siguiente paso sugerido:
+→ /unit-test-review   para completar la suite de tests con casos de negocio
+→ /code-reviewer      para revisar calidad del componente generado
+```
