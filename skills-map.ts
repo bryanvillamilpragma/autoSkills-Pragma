@@ -48,6 +48,7 @@ export const SKILLS_MAP: Technology[] = [
       "pragma/autoskills/vercel-react-best-practices",
     ],
     workflows: [
+      "pragma/autoskills/workflows/create-view",
       "pragma/autoskills/workflows/unit-test-review",
       "pragma/autoskills/workflows/code-reviewer",
       "pragma/autoskills/workflows/performance-optimizer",
@@ -60,9 +61,6 @@ export const SKILLS_MAP: Technology[] = [
       "pragma/autoskills/rules/code-test",
       "pragma/autoskills/rules/performance",
       "pragma/autoskills/rules/security",
-    ],
-    agents: [
-      "pragma/autoskills/workflows/create-view",
     ],
   },
   {
@@ -77,6 +75,8 @@ export const SKILLS_MAP: Technology[] = [
       "pragma/autoskills/nextjs-shadcn",
     ],
     workflows: [
+      "pragma/autoskills/workflows/create-view",
+      "pragma/autoskills/workflows/unit-test-review",
       "pragma/autoskills/workflows/code-reviewer",
       "pragma/autoskills/workflows/performance-optimizer",
       "pragma/autoskills/workflows/security-auditor",
@@ -88,9 +88,6 @@ export const SKILLS_MAP: Technology[] = [
       "pragma/autoskills/rules/code-test",
       "pragma/autoskills/rules/performance",
       "pragma/autoskills/rules/security",
-    ],
-    agents: [
-      "pragma/autoskills/workflows/create-view",
     ],
   },
   {
@@ -151,6 +148,7 @@ export const SKILLS_MAP: Technology[] = [
       "pragma/autoskills/clean-architecture-uml",
     ],
     workflows: [
+      "pragma/autoskills/workflows/create-view",
       "pragma/autoskills/workflows/unit-test-review",
       "pragma/autoskills/workflows/code-reviewer",
       "pragma/autoskills/workflows/performance-optimizer",
@@ -163,9 +161,6 @@ export const SKILLS_MAP: Technology[] = [
       "pragma/autoskills/rules/solid-clean",
       "pragma/autoskills/rules/code-test",
       "pragma/autoskills/rules/security",
-    ],
-    agents: [
-      "pragma/autoskills/workflows/create-view",
     ],
   },
   {
