@@ -703,12 +703,11 @@ export function collectWorkflows(params: {
     for (const workflowPath of tech.workflows) {
       const { skillName } = parseSkillPath(workflowPath);
       if (seen.has(skillName)) continue;
-      if (installedSet?.has(skillName)) continue;
       seen.add(skillName);
       result.push({
         skill: workflowPath,
         sources: [tech.name],
-        installed: false,
+        installed: installedSet?.has(skillName) ?? false,
       });
     }
   }

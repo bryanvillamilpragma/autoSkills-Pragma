@@ -31,8 +31,8 @@ import {
     securityCheckForSkillPath,
 } from "./installer.js";
 import type { ComboSkill, SkillEntry, Technology } from "./lib.js";
-import { collectAutoRules, collectSkills, detectAgents, detectInstalledIDEs, detectTechnologies, getInstalledSkillNames, parseSkillPath } from "./lib.js";
-import { formatTime, multiSelect, printBanner } from "./ui.js";
+import { collectAutoRules, collectSkills, collectWorkflows, detectAgents, detectInstalledIDEs, detectTechnologies, getInstalledSkillNames, parseSkillPath } from "./lib.js";
+import { formatTime, multiSelect, printBanner, printStepHeader } from "./ui.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const VERSION: string = (() => {
@@ -116,25 +116,26 @@ function showHelp(): void {
   ${bold("sopp-front")} — Auto-install the best AI skills for your project
 
   ${bold("Usage:")}
-    npx sopp-front                   Detect & install skills
-    npx sopp-front ${dim("-y")}                   Skip confirmation
+    npx sopp-front                   Detect & install skills + workflows
+    npx sopp-front ${dim("-y")}                   Skip all confirmations
     npx sopp-front ${dim("--dry-run")}            Show what would be installed
     npx sopp-front ${dim("--clear-cache")}        Clear downloaded skills cache
     npx sopp-front ${dim("-a cursor claude-code")} Install for specific IDEs only
-    npx sopp-front ${dim("agents")}               Show & install agents/workflows for your stack
     npx sopp-front ${dim("--logout")}             Sign out and remove cached token
 
   ${bold("Options:")}
-    -y, --yes       Skip confirmation prompt
-    --dry-run       Show skills without installing
+    -y, --yes       Skip all confirmation prompts
+    --dry-run       Show skills + workflows without installing
     --clear-cache   Clear downloaded skills cache
     -v, --verbose   Show install trace and error details
-    -a, --agent     Install for specific IDEs only (e.g. cursor, claude-code)
+    -a, --agent     Target specific IDEs (e.g. cursor claude-code)
     --logout        Sign out from your @pragma.com.co account
     -h, --help      Show this help message
 
   ${bold("Auth:")}
     Requires a @pragma.com.co Google account. Set AUTOSKILLS_SKIP_AUTH=1 to bypass in CI.
+
+  ${dim("[deprecated]")} agents               Use main flow instead (npx sopp-front)
 `);
 }
 
@@ -523,14 +524,8 @@ async function selectSkills(skills: SkillEntry[], autoYes: boolean): Promise<Ski
             },
           ]
         : [],
+    confirmHint: "next →",
   });
-
-  if (selected.length === 0) {
-    log();
-    log(dim("   Nothing selected."));
-    log();
-    process.exit(0);
-  }
 
   return selected;
 }
@@ -546,6 +541,204 @@ async function runAuthGate(): Promise<void> {
     log(`\n  🔐 Se requiere autenticación con tu cuenta @pragma.com.co\n`);
     await authenticate();
   }
+}
+
+// ── Workflow Selection ───────────────────────────────────────
+
+async function selectWorkflows(workflows: SkillEntry[], autoYes: boolean): Promise<SkillEntry[]> {
+  if (workflows.length === 0) {
+    log(dim("   No workflows available for your stack."));
+    log();
+    return [];
+  }
+
+  const newCount = workflows.filter((w) => !w.installed).length;
+  const installedCount = workflows.length - newCount;
+  const countLabel =
+    installedCount > 0
+      ? `${workflows.length} found, ${installedCount} already installed`
+      : `${workflows.length} found, 0 already installed`;
+
+  log(cyan("   ◆ ") + bold("Select workflows to install ") + dim(`(${countLabel})`));
+  log();
+
+  if (autoYes) {
+    const selected = workflows.filter((w) => !w.installed).slice(0, 3);
+    for (const w of selected) {
+      const { skillName } = parseSkillPath(w.skill);
+      const agent = AGENTS_REGISTRY.find((a) => a.name === skillName);
+      log(dim(`     ✔ ${skillName}`) + (agent ? dim(`  ${agent.description}`) : ""));
+    }
+    log();
+    return selected;
+  }
+
+  // Pre-select the first 3 non-installed workflows
+  let preSelectCount = 0;
+  const initialSelected = workflows.map((w) => {
+    if (w.installed) return false;
+    return preSelectCount++ < 3;
+  });
+
+  const selected = await multiSelect(workflows, {
+    labelFn: (w) => {
+      const { skillName } = parseSkillPath(w.skill);
+      const agent = AGENTS_REGISTRY.find((a) => a.name === skillName);
+      const desc = agent?.description ?? "";
+      const installedTag = w.installed ? dim(" (installed)") : "";
+      return `${cyan(bold(skillName))}  ${dim(desc)}${installedTag}`;
+    },
+    hintFn: (w) => {
+      const techSources = w.sources.filter((s) => !s.includes(" + "));
+      return techSources.length > 0 ? `← ${techSources.join(", ")}` : "";
+    },
+    groupFn: (w) => w.sources[0],
+    initialSelected,
+    shortcuts:
+      installedCount > 0
+        ? [
+            { key: "n", label: "new", fn: (items: SkillEntry[]) => items.map((w) => !w.installed) },
+            { key: "i", label: "installed", fn: (items: SkillEntry[]) => items.map((w) => w.installed) },
+          ]
+        : [],
+    confirmHint: "next →",
+  });
+
+  return selected;
+}
+
+// ── IDE Selection ─────────────────────────────────────────────
+
+async function selectIDEs(
+  projectDir: string,
+  autoYes: boolean,
+): Promise<{ global: ReturnType<typeof detectInstalledIDEs>["global"]; local: ReturnType<typeof detectInstalledIDEs>["local"] }> {
+  const { global: globalIDEs, local: localIDEs } = detectInstalledIDEs(projectDir);
+  const allDetectedIDEs = [...globalIDEs, ...localIDEs];
+
+  if (allDetectedIDEs.length === 0) {
+    log(yellow("  ⚠ No se detectó ningún IDE de IA instalado."));
+    log(dim("  Instala Claude Code, Cursor, Kiro, Windsurf o VS Code con Copilot."));
+    log();
+    process.exit(0);
+  }
+
+  if (allDetectedIDEs.length === 1 || autoYes) {
+    const selected = allDetectedIDEs;
+    if (allDetectedIDEs.length === 1) {
+      log(cyan("  ◆ IDE detectado:") + " " + bold(allDetectedIDEs[0].id));
+      log();
+    } else {
+      log(cyan("  ◆ IDEs seleccionados:") + " " + bold(selected.map((i) => i.id).join(", ")));
+      log();
+    }
+    return {
+      global: selected.filter((i) => i.config.isGlobal),
+      local: selected.filter((i) => !i.config.isGlobal),
+    };
+  }
+
+  log(cyan("  ◆ ") + bold("Select IDEs to install into:"));
+  log();
+
+  const selectedIDEs = await multiSelect(allDetectedIDEs, {
+    labelFn: (ide) => `${ide.id}${ide.config.isGlobal ? "" : " (local)"}`,
+    hintFn: (ide) => (ide.config.isGlobal ? "global" : "project-local"),
+    initialSelected: allDetectedIDEs.map(() => true),
+    confirmHint: "install →",
+  });
+
+  log();
+
+  return {
+    global: selectedIDEs.filter((i) => i.config.isGlobal),
+    local: selectedIDEs.filter((i) => !i.config.isGlobal),
+  };
+}
+
+// ── Install All ───────────────────────────────────────────────
+
+async function installAll(
+  skills: SkillEntry[],
+  workflows: SkillEntry[],
+  ides: { global: ReturnType<typeof detectInstalledIDEs>["global"]; local: ReturnType<typeof detectInstalledIDEs>["local"] },
+  opts: { projectDir: string; verbose: boolean },
+): Promise<void> {
+  const { projectDir, verbose } = opts;
+  const allIDEs = [...ides.global, ...ides.local];
+  const registryDir = getRegistryDir();
+  const ideNames = allIDEs.map((i) => i.id).join(", ");
+
+  log(cyan("  ◆ ") + bold("Installing..."));
+  log(dim(`  IDEs: ${ideNames}`));
+
+  const startTime = Date.now();
+  let totalSkillsInstalled = 0;
+  let totalWorkflowsInstalled = 0;
+  let totalFailed = 0;
+
+  // ── Skills ──────────────────────────────────────────────────
+  if (skills.length > 0) {
+    log();
+    log(dim("  Skills:"));
+    for (const skill of skills) {
+      const { skillName } = parseSkillPath(skill.skill);
+      const result = await installSkillGlobal(skill.skill, ides.global, ides.local, { projectDir, verbose });
+      if (result.installed.length > 0) {
+        totalSkillsInstalled++;
+        log(green("  ✔") + ` ${dim(skillName)}` + dim(` → ${ideNames}`));
+      } else {
+        totalFailed++;
+        log(red("  ✘") + ` ${dim(skillName)}`);
+      }
+    }
+  }
+
+  // ── Workflows ────────────────────────────────────────────────
+  if (workflows.length > 0) {
+    log();
+    log(dim("  Workflows:"));
+    for (const workflow of workflows) {
+      const { skillName: registrySubPath } = parseSkillPath(workflow.skill);
+      const agentName = registrySubPath.split("/").pop() ?? registrySubPath;
+      const localSkillDir = join(registryDir, ...registrySubPath.split("/"));
+
+      const result = existsSync(localSkillDir)
+        ? installLocalSkillGlobal(agentName, localSkillDir, ides.global, ides.local, { projectDir, verbose }, "agent")
+        : await installSkillGlobal(workflow.skill, ides.global, ides.local, { projectDir, verbose }, "agent");
+
+      if (result.installed.length > 0) {
+        totalWorkflowsInstalled++;
+        log(green("  ✔") + ` ${dim(agentName)}` + dim(` → ${ideNames}`));
+      } else {
+        totalFailed++;
+        log(red("  ✘") + ` ${dim(agentName)}`);
+      }
+    }
+  }
+
+  const elapsed = Date.now() - startTime;
+  const ideCount = allIDEs.length;
+  const skillsPart = totalSkillsInstalled > 0
+    ? bold(`${totalSkillsInstalled} skill${totalSkillsInstalled !== 1 ? "s" : ""}`)
+    : "";
+  const workflowsPart = totalWorkflowsInstalled > 0
+    ? bold(`${totalWorkflowsInstalled} workflow${totalWorkflowsInstalled !== 1 ? "s" : ""}`)
+    : "";
+  const installedPart = [skillsPart, workflowsPart].filter(Boolean).join(bold(" + "));
+
+  log();
+  log(
+    green("  ✔ ") +
+    installedPart +
+    dim(` installed across ${ideCount} IDE${ideCount !== 1 ? "s" : ""} in ${formatTime(elapsed)}`),
+  );
+  if (totalFailed > 0) {
+    log(yellow(`  ⚠ ${totalFailed} failed`));
+  }
+  log();
+  log(pink("   sopp-front — AI Skills CLI by Pragma Engineering"));
+  log();
 }
 
 // ── Agents registry ───────────────────────────────────────────
@@ -841,10 +1034,13 @@ async function main(): Promise<void> {
   // ── Auth gate (CI bypass: AUTOSKILLS_SKIP_AUTH=1) ────────
   // await runAuthGate(); // TODO: temporalmente deshabilitado
 
-  // ── Agents / workflows screen ──────────────────────────
+  // ── Deprecated: agents command → unified flow ──────────
   if (listAgents) {
-    await showAvailableAgents(resolve("."), autoYes, dryRun, verbose);
-    process.exit(0);
+    log(yellow("  ⚠ ") + bold("'npx sopp-front agents' está deprecado."));
+    log(dim("    Desde v0.6.0 los workflows forman parte del flujo principal."));
+    log(dim("    Continuando con el flujo unificado..."));
+    log();
+    // fall through to unified flow
   }
 
   // ── Educational message for workflow positional ─────────
@@ -857,7 +1053,7 @@ async function main(): Promise<void> {
     log("");
     log(dim("  Your agent will use the installed skills and workflows automatically."));
     log("");
-    log(dim('  Tip: run ') + cyan('"npx sopp-front agents"') + dim(" to install agents first."));
+    log(dim("  Tip: run ") + cyan('"npx sopp-front"') + dim(" to install skills + workflows."));
     log("");
     process.exit(0);
   }
@@ -882,123 +1078,80 @@ async function main(): Promise<void> {
   const installedNames = getInstalledSkillNames(projectDir);
   const allSkills = collectSkills({ detected, isFrontend, combos, installedNames });
 
-  // In dry-run mode show every detected skill; during actual install restrict to locally-available ones.
   const validSkills = allSkills.filter((s) => parseSkillPath(s.skill).skillName.length > 0);
+
+  const registryDir = getRegistryDir();
+  const localSkillDirs = new Set(
+    existsSync(registryDir)
+      ? readdirSync(registryDir, { withFileTypes: true })
+          .filter((e: Dirent<string>) => e.isDirectory())
+          .map((e: Dirent<string>) => e.name)
+      : [],
+  );
+
   const skills = dryRun
     ? validSkills
-    : (() => {
-        const registryDir = getRegistryDir();
-        const localSkillDirs = new Set(
-          existsSync(registryDir)
-            ? readdirSync(registryDir, { withFileTypes: true })
-                .filter((e: Dirent<string>) => e.isDirectory())
-                .map((e: Dirent<string>) => e.name)
-            : [],
-        );
-        return validSkills.filter((s) => localSkillDirs.has(parseSkillPath(s.skill).skillName));
-      })();
+    : validSkills.filter((s) => localSkillDirs.has(parseSkillPath(s.skill).skillName));
 
-  if (skills.length === 0) {
-    log(yellow("   No skills available for your stack yet."));
-    log(dim("   Check https://autoskills.sh for the latest."));
-    log();
-    process.exit(0);
-  }
+  const allWorkflows = collectWorkflows({ detected, installedNames });
 
   if (!dryRun) {
     setImmediate(loadRegistry);
   }
 
+  // ── Dry-run: show skills + workflows + IDEs, then exit ──
   if (dryRun) {
     printSkillsList(skills);
-    const agentList = agents.length > 0 ? agents : detectAgents();
-    log(dim(`   Agents: ${agentList.join(", ")}`));
+    if (allWorkflows.length > 0) {
+      const newWorkflows = allWorkflows.filter((w) => !w.installed);
+      log(cyan("   ◆ ") + bold("Workflows to install ") + dim(`(${newWorkflows.length})`));
+      log();
+      for (const w of newWorkflows) {
+        const { skillName } = parseSkillPath(w.skill);
+        log(dim(`     • ${skillName}`) + (w.sources.length > 0 ? dim(`  ← ${w.sources.join(", ")}`) : ""));
+      }
+      log();
+    }
+    const { global: dryGlobal, local: dryLocal } = detectInstalledIDEs(projectDir);
+    const dryIDEs = [...dryGlobal, ...dryLocal];
+    log(dim(`   IDEs: ${dryIDEs.length > 0 ? dryIDEs.map((i) => i.id).join(", ") : "none detected"}`));
     log();
     log(dim("   --dry-run: nothing was installed."));
     log();
     process.exit(0);
   }
 
-  const selectedSkills = await selectSkills(skills, autoYes);
-
-  log();
-
-  const { global: globalIDEs, local: localIDEs } = detectInstalledIDEs(projectDir);
-  const allIDEsDetected = [...globalIDEs, ...localIDEs];
-
-  if (allIDEsDetected.length === 0) {
-    log(yellow("  ⚠ No se detectó ningún IDE de IA instalado."));
-    log(dim("  Instala Claude Code, Cursor, Kiro, Windsurf o VS Code con Copilot."));
+  if (skills.length === 0 && allWorkflows.length === 0) {
+    log(yellow("   No skills or workflows available for your stack yet."));
     log();
     process.exit(0);
   }
 
-  let selectedIDEs: typeof allIDEsDetected;
+  // ── Step 1 — Skills ──────────────────────────────────────
+  printStepHeader(1, 3, "Skills");
 
-  if (allIDEsDetected.length === 1) {
-    selectedIDEs = allIDEsDetected;
-    log(cyan("  ◆ IDE detectado:") + " " + bold(allIDEsDetected[0].id));
+  let selectedSkills: SkillEntry[] = [];
+  if (skills.length === 0) {
+    log(dim("   No skills available for your stack."));
     log();
   } else {
-    log(cyan("  ◆ IDEs detectados en tu sistema:"));
-    log();
-
-    selectedIDEs = await multiSelect(allIDEsDetected, {
-      labelFn: (ide) => `${ide.id}${ide.config.isGlobal ? "" : " (local — sin soporte global)"}`,
-      initialSelected: allIDEsDetected.map(() => autoYes),
-    });
+    selectedSkills = await selectSkills(skills, autoYes);
     log();
   }
 
-  const selectedGlobal = selectedIDEs.filter((ide) => ide.config.isGlobal);
-  const selectedLocal = selectedIDEs.filter((ide) => !ide.config.isGlobal);
+  // ── Step 2 — Workflows ───────────────────────────────────
+  printStepHeader(2, 3, "Workflows");
 
-  log(cyan("  ◆ ") + bold("Instalando skills globalmente..."));
-  log(dim(`  IDEs: ${selectedIDEs.map((i) => i.id).join(", ")}`));
-  if (selectedLocal.length > 0) {
-    log(dim(`  Cursor instalará en este proyecto: ${projectDir}`));
-  }
+  const selectedWorkflows = await selectWorkflows(allWorkflows, autoYes);
   log();
 
-  const startTime = Date.now();
-  let totalInstalled = 0;
-  let totalFailed = 0;
+  // ── Step 3 — IDEs ────────────────────────────────────────
+  printStepHeader(3, 3, "IDEs");
 
-  for (const skill of selectedSkills) {
-    const result = await installSkillGlobal(
-      skill.skill,
-      selectedGlobal,
-      selectedLocal,
-      { projectDir, verbose },
-    );
-    // Count per skill (not per IDE copy) — one skill installed in 4 IDEs = 1, not 4
-    if (result.installed.length > 0) totalInstalled++;
-    else if (result.failed.length > 0) totalFailed++;
+  const selectedIDEs = await selectIDEs(projectDir, autoYes);
 
-    if (verbose) {
-      for (const inst of result.installed) {
-        log(green("   ✔") + dim(` ${result.skillName} → ${inst.ide}`));
-      }
-      for (const fail of result.failed) {
-        log(red("   ✘") + dim(` ${result.skillName} → ${fail.ide}: ${fail.error}`));
-      }
-    }
-  }
-
-  const elapsed = Date.now() - startTime;
-  const ideCount = selectedIDEs.length;
-  log(
-    green("  ✔ ") +
-    bold(`${totalInstalled} skill${totalInstalled !== 1 ? "s" : ""} installed`) +
-    dim(` across ${ideCount} IDE${ideCount !== 1 ? "s" : ""} in ${formatTime(elapsed)}`),
-  );
-  if (totalFailed > 0) {
-    log(yellow(`  ⚠ ${totalFailed} failed`));
-  }
-  log();
-  log(dim("  Tus IDEs ya tienen el contexto del proyecto."));
-  log(dim("  Abre cualquier proyecto y tu agente estará listo."));
-  log();
+  // ── Install everything in a single pass ──────────────────
+  await installAll(selectedSkills, selectedWorkflows, selectedIDEs, { projectDir, verbose });
 }
 
 // Run main() only when invoked as CLI entry point — not when imported by tests.

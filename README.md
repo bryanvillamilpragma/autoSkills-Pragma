@@ -1,21 +1,21 @@
-# autoskills-pragma
+# sopp-front
 
 > Fork of [autoskills](https://github.com/midudev/autoskills) by [@midudev](https://github.com/midudev), maintained by [Pragma Engineering](https://github.com/bryanvillamilpragma/autoSkills-Pragma). License: [CC-BY-NC-4.0](https://creativecommons.org/licenses/by-nc/4.0/).
 
 Auto-detect and install the best AI agent skills for your project. One command, zero config.
 
 ```bash
-npx autoskills-pragma
+npx sopp-front
 ```
 
-`autoskills-pragma` scans your project, detects the technologies you use, and installs curated [AI agent skills](https://skills.sh) that make Claude Code, Kiro, Copilot, Windsurf, and Cursor actually understand your stack.
+`sopp-front` scans your project, detects the technologies you use, and installs curated [AI agent skills](https://skills.sh) that make Claude Code, Kiro, Copilot, Windsurf, and Cursor actually understand your stack.
 
 ## Quick Start
 
 Run it in your project root:
 
 ```bash
-npx autoskills-pragma
+npx sopp-front
 ```
 
 That's it. It will:
@@ -29,18 +29,18 @@ That's it. It will:
 ### Skip the prompt
 
 ```bash
-npx autoskills-pragma -y
+npx sopp-front -y
 ```
 
 ### Preview without installing
 
 ```bash
-npx autoskills-pragma --dry-run
+npx sopp-front --dry-run
 ```
 
 ### Claude Code summary
 
-If `claude-code` is auto-detected or passed with `-a`, `autoskills-pragma` writes a `CLAUDE.md` file in your project root summarizing the markdown files installed under `.claude/skills`.
+If `claude-code` is auto-detected or passed with `-a`, `sopp-front` writes a `CLAUDE.md` file in your project root summarizing the markdown files installed under `.claude/skills`.
 
 ## Options
 
@@ -54,7 +54,7 @@ If `claude-code` is auto-detected or passed with `-a`, `autoskills-pragma` write
 
 ## Supported Technologies
 
-`autoskills-pragma` detects **50+ technologies** from your `package.json`, lockfiles, Gradle files, and config files:
+`sopp-front` detects **50+ technologies** from your `package.json`, lockfiles, Gradle files, and config files:
 
 ### Frameworks & Libraries
 
@@ -157,11 +157,11 @@ If `claude-code` is auto-detected or passed with `-a`, `autoskills-pragma` write
 
 ### Web Frontend Detection
 
-Even without a framework, `autoskills-pragma` scans your file tree for web frontend signals (`.html`, `.css`, `.scss`, `.vue`, `.svelte`, `.jsx`, `.tsx`, `.twig`, `.blade.php`, etc.) and installs skills for frontend design, accessibility, and SEO.
+Even without a framework, `sopp-front` scans your file tree for web frontend signals (`.html`, `.css`, `.scss`, `.vue`, `.svelte`, `.jsx`, `.tsx`, `.twig`, `.blade.php`, etc.) and installs skills for frontend design, accessibility, and SEO.
 
 ## Combo Detection
 
-When multiple technologies are used together, `autoskills-pragma` detects **technology combos** and adds specialized skills for the combination:
+When multiple technologies are used together, `sopp-front` detects **technology combos** and adds specialized skills for the combination:
 
 - **Next.js + Supabase** — Supabase Postgres best practices for Next.js
 - **Next.js + Vercel AI SDK** — AI SDK patterns with Next.js
@@ -177,7 +177,7 @@ When multiple technologies are used together, `autoskills-pragma` detects **tech
 
 ## How It Works
 
-`autoskills-pragma` uses [skills.sh](https://skills.sh) under the hood — the open skill registry for AI coding agents. Skills are markdown files that teach AI assistants how to work with specific technologies, following best practices and patterns from the official maintainers.
+`sopp-front` uses [skills.sh](https://skills.sh) under the hood — the open skill registry for AI coding agents. Skills are markdown files that teach AI assistants how to work with specific technologies, following best practices and patterns from the official maintainers.
 
 The detection runs entirely locally with zero network requests until installation begins.
 

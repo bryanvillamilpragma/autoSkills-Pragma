@@ -90,17 +90,24 @@ export async function printBanner(version: string): Promise<void> {
   log();
 }
 
+export function printStepHeader(step: number, total: number, label: string): void {
+  log();
+  log(dim(`── Step ${step} of ${total} — `) + bold(label) + dim(` ─────────────────────`));
+  log();
+}
+
 interface MultiSelectOptions<T> {
   labelFn: (item: T, i: number) => string;
   hintFn?: (item: T, i: number) => string;
   groupFn?: (item: T) => string;
   initialSelected?: boolean[];
   shortcuts?: { key: string; label: string; fn: (items: T[]) => boolean[] }[];
+  confirmHint?: string;
 }
 
 export function multiSelect<T>(
   items: T[],
-  { labelFn, hintFn, groupFn, initialSelected, shortcuts = [] }: MultiSelectOptions<T>,
+  { labelFn, hintFn, groupFn, initialSelected, shortcuts = [], confirmHint }: MultiSelectOptions<T>,
 ): Promise<T[]> {
   if (initialSelected && initialSelected.length !== items.length) {
     throw new Error(
@@ -185,7 +192,7 @@ export function multiSelect<T>(
           dim(" all · ") +
           shortcutPart +
           white(bold("[enter]")) +
-          dim(` confirm (${count}/${items.length})`),
+          dim(` ${confirmHint ?? "confirm"} (${count}/${items.length})`),
       );
     }
 
