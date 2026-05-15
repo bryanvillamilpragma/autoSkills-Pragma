@@ -44,7 +44,7 @@ El workflow está completo cuando se cumplen **todos** estos criterios:
 | **Re-medición post-optimización** | Comparación de métricas reales antes/después de aplicar fixes |
 | **Tests verificados** | Confirmar que los fixes no rompen funcionalidad ni accesibilidad |
 | **Budget cumplido** | Si había performance budget definido, confirmar que se alcanzó |
-| **Siguiente paso sugerido** | `/dependency-scanner` si hay dependencias pesadas que reemplazar |
+| **Siguiente paso sugerido** | `/security-auditor` si se detectaron dependencias con vulnerabilidades |
 
 ---
 
@@ -226,7 +226,7 @@ Después de aplicar cada grupo de fixes:
 | Issue in third-party library | Document limitation, suggest workaround |
 | Performance requires framework upgrade | Document upgrade path and effort |
 | Performance vs. accessibility conflict | Always choose accessibility |
-| Dependencias pesadas sin alternativa ligera | Delegar a `dependency-scanner` para evaluar reemplazo |
+| Dependencias pesadas sin alternativa ligera | Documentar alternativas más ligeras con estimación de reducción de bundle |
 
 ## Siguiente paso sugerido
 
@@ -240,6 +240,5 @@ Al cerrar el workflow:
 ✔ Reporte actualizado: reports/performance-audit.md
 
 Siguiente paso sugerido:
-→ /dependency-scanner   si hay dependencias pesadas que reemplazar
 → /code-reviewer        si los hallazgos muestran anti-patrones de renderizado sistemáticos
 ```

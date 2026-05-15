@@ -583,13 +583,6 @@ const AGENTS_REGISTRY: AgentEntry[] = [
     hint: "Detecta anti-patrones, God components y code smells",
   },
   {
-    name: "dependency-scanner",
-    description: "Audita dependencias por CVEs, licencias y riesgos de supply chain",
-    requires: ["react", "angular", "nextjs", "node"],
-    skillPath: "pragma/autoskills/workflows/dependency-scanner",
-    hint: "CVEs, licencias y salud de dependencias",
-  },
-  {
     name: "performance-optimizer",
     description: "Optimiza Core Web Vitals, bundle size y rendimiento de renderizado",
     requires: ["react", "angular", "nextjs"],

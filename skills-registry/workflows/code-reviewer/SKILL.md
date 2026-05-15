@@ -44,7 +44,7 @@ El workflow está completo cuando se cumplen **todos** estos criterios:
 | **Reporte generado** | `reports/code-review.md` con tabla de severidades, top findings y diff vs. reporte anterior |
 | **Fixes aplicados** | Cada fix confirmado individualmente — nunca en lote |
 | **Tests verificados** | Si se aplicaron fixes: confirmar que los tests existentes siguen pasando |
-| **Siguiente paso sugerido** | Según hallazgos: `/security-auditor`, `/performance-optimizer` o `/dependency-scanner` |
+| **Siguiente paso sugerido** | Según hallazgos: `/security-auditor` o `/performance-optimizer` |
 
 ---
 
@@ -187,7 +187,6 @@ Según los hallazgos encontrados:
 Siguiente paso sugerido:
 → /security-auditor        si se encontraron hallazgos de seguridad (XSS, tokens, auth)
 → /performance-optimizer   si se encontraron problemas de re-renders o bundle
-→ /dependency-scanner      si se detectaron dependencias vulnerables o desactualizadas
 ```
 
 ## Review Modes
@@ -211,5 +210,5 @@ Siguiente paso sugerido:
 |-----------|--------|
 | Security vulnerability | Delegate to `security-auditor` |
 | Severe performance issue | Delegate to `performance-optimizer` |
-| Vulnerable dependency | Delegate to `dependency-scanner` |
+| Vulnerable dependency | Delegate to `security-auditor` |
 | Fundamentally misarchitected | Recommend architectural review session |

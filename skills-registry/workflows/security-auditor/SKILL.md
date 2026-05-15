@@ -43,7 +43,7 @@ El workflow está completo cuando se cumplen **todos** estos criterios:
 | **Reporte generado** | `reports/frontend-security-audit.md` con severidades, cobertura y diff vs. reporte anterior |
 | **Re-scan post-fixes** | Confirmación de que las vulnerabilidades aplicadas fueron resueltas |
 | **Tests verificados** | Confirmar que los fixes no rompen la suite de tests existente |
-| **Siguiente paso sugerido** | `/dependency-scanner` si se detectaron CVEs en dependencias |
+| **Siguiente paso sugerido** | `/code-reviewer` si los hallazgos muestran problemas de calidad sistemáticos |
 
 ---
 
@@ -192,7 +192,7 @@ Después de aplicar cada fix:
 | Critical vulnerability in production | Mark as URGENT, offer immediate fix |
 | Vulnerability requires backend changes | Document backend fix, mark "requires backend team" |
 | Dependency has no fix | Recommend alternative package or mitigation |
-| CVEs encontrados en dependencias | Delegar a `dependency-scanner` para remediación completa |
+| CVEs encontrados en dependencias | Documentar paquetes afectados y proveer comandos de upgrade manuales |
 
 ## Siguiente paso sugerido
 
@@ -205,6 +205,5 @@ Al cerrar el workflow:
 ✔ Reporte actualizado: reports/frontend-security-audit.md
 
 Siguiente paso sugerido:
-→ /dependency-scanner   si se encontraron CVEs en dependencias
 → /code-reviewer        si los hallazgos muestran problemas de calidad sistemáticos
 ```

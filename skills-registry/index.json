@@ -13470,26 +13470,6 @@
       "bundleHash": "a4e9b29292df2d5a021438b4e9a50f16f26716cb58c5d4f4d725fdd231eaedeb",
       "skillPath": "pragma/autoskills/workflows/code-reviewer"
     },
-    "workflows/dependency-scanner": {
-      "commitSha": "local",
-      "files": [
-        "SKILL.md"
-      ],
-      "review": {
-        "status": "approved",
-        "flags": [],
-        "summary": "",
-        "model": "local",
-        "promptVersion": "1.0.0",
-        "reviewedAt": "2026-05-06T00:00:00.000Z"
-      },
-      "source": "pragma/autoskills/workflows/dependency-scanner",
-      "sha256": {
-        "SKILL.md": "0638a90857d3da82e2882221b97bda91ce01325ba5739c94d60b0d220a94d88a"
-      },
-      "bundleHash": "f72cb3e9da533e90bd015c189d943d2d612f7e6c6caf3d5067011b1701c9f543",
-      "skillPath": "pragma/autoskills/workflows/dependency-scanner"
-    },
     "workflows/performance-optimizer": {
       "commitSha": "local",
       "files": [

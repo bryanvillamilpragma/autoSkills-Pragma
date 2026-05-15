@@ -50,7 +50,6 @@ export const SKILLS_MAP: Technology[] = [
     workflows: [
       "pragma/autoskills/workflows/unit-test-review",
       "pragma/autoskills/workflows/code-reviewer",
-      "pragma/autoskills/workflows/dependency-scanner",
       "pragma/autoskills/workflows/performance-optimizer",
       "pragma/autoskills/workflows/security-auditor",
       "pragma/autoskills/workflows/microfrontend-architect",
@@ -79,7 +78,6 @@ export const SKILLS_MAP: Technology[] = [
     ],
     workflows: [
       "pragma/autoskills/workflows/code-reviewer",
-      "pragma/autoskills/workflows/dependency-scanner",
       "pragma/autoskills/workflows/performance-optimizer",
       "pragma/autoskills/workflows/security-auditor",
       "pragma/autoskills/workflows/microfrontend-architect",
@@ -155,7 +153,6 @@ export const SKILLS_MAP: Technology[] = [
     workflows: [
       "pragma/autoskills/workflows/unit-test-review",
       "pragma/autoskills/workflows/code-reviewer",
-      "pragma/autoskills/workflows/dependency-scanner",
       "pragma/autoskills/workflows/performance-optimizer",
       "pragma/autoskills/workflows/security-auditor",
       "pragma/autoskills/workflows/microfrontend-architect",
